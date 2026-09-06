@@ -58,8 +58,10 @@ class Assignment:
 
 
     def mark_assignment(self):
+        # may need to change the way the dictionary is formatted [class][duedate][time][assignment]
         current = datetime.now()
         dueDate = input("What is the due date of the assignment you want to mark? (YYYY-MM-DD): ")
+        # idiot proofing the user input for date and time
         if self.check_date(dueDate):
             if dueDate in self.assignment:
                 dueTime = input("What is the due time of the assignment you want to mark? (HH:MM AM/PM): ")
@@ -70,6 +72,7 @@ class Assignment:
                             assignmentName = input("What is the name of the assignment you want to mark? ")
                             if assignmentName in self.assignment[dueDate][dueTime][className]:
                                 print(f"Congrats! You completed {assignmentName} for {className}!")
+                                # turning work in early or on time gives big money
                                 if current < dueDate and current < dueTime:
                                     self.moneyCounter += 50
                                     print(f"You've gained ${self.moneyCounter} for completing this assignment early!")
@@ -80,11 +83,14 @@ class Assignment:
                                     self.moneyCounter += 15
                                     print(f"You barely made it! You've gained ${self.moneyCounter} for completing this assignment just in time!")
                                 elif current == dueDate and current > dueTime:
-                                    self.moneyCounter += 5
-                                    print(f"Dang... should've done this earlier, you got docked a couple dollars. You've gained ${self.moneyCounter} for completing this assignment late.")
-                                elif current > dueDate and current > dueTime:
+                                    # if user turns in work late, they lose money
                                     self.moneyCounter -= 0.10
-                                    print(f"Aw man... you missed the deadline. You've lost ${self.moneyCounter} for completing this assignment late.")
+                                    print(f"Dang... should've done this earlier. You've lost $0.10 for completing this assignment late.")
+                                    print(f"You remaining balance is ${self.moneyCounter}.")
+                                elif current > dueDate and current > dueTime:
+                                    self.moneyCounter -= 5
+                                    print(f"Aw man... you missed the deadline. You've lost $5.00 for completing this assignment late.")
+                                    print(f"You remaining balance is ${self.moneyCounter}.")
                                 self.assignment[dueDate][dueTime][className].remove(assignmentName)
                             else:
                                 print("Assignment not found.")
