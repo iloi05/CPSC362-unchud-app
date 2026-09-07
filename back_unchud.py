@@ -2,13 +2,17 @@
 
 from datetime import datetime, timezone
 
+import time
+import schedule
+from plyer import notification
+
 class Assignment:
     # variables for all functions
     def __init__(self):
         self.assignment = {}
         self.moneyCounter = 0
 
-    # helper functions to check date and time
+    # helper functions
     def check_date(self, date):
         try:
             datetime.strptime(date, "%Y-%m-%d")
@@ -23,6 +27,15 @@ class Assignment:
             return False
     def check_assignment(self):
         print(self.assignment)
+
+    def searchAssignment(self, dueDate, dueTime, className, assignment):
+        for dueDate in self.assignment:
+            for dueTime in self.assignment[dueDate]:
+                for className in self.assignment[dueDate][dueTime]:
+                    if assignment in self.assignment[dueDate][dueTime][className]:
+                        return dueDate, dueTime, className, assignment
+        return None
+            
 
     # main functions for the program
     def add_assignment(self):
@@ -106,6 +119,9 @@ class Assignment:
         else:
             print("Invalid date format. Please use YYYY-MM-DD.")
             return
+
+
+
         
 
 
