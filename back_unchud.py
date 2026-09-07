@@ -27,14 +27,6 @@ class Assignment:
             return False
     def check_assignment(self):
         print(self.assignment)
-
-    def searchAssignment(self, dueDate, dueTime, className, assignment):
-        for dueDate in self.assignment:
-            for dueTime in self.assignment[dueDate]:
-                for className in self.assignment[dueDate][dueTime]:
-                    if assignment in self.assignment[dueDate][dueTime][className]:
-                        return dueDate, dueTime, className, assignment
-        return None
             
 
     # main functions for the program
@@ -119,6 +111,29 @@ class Assignment:
         else:
             print("Invalid date format. Please use YYYY-MM-DD.")
             return
+
+def setNotif(self, dueDate, dueTime, className, assignment):
+    cName = input("What class is this assignment for? ")
+    aName = input("What is the name of the assignment you want to be notified about? ")
+    for dueDate in self.assignment:
+        for dueTime in self.assignment[dueDate]:
+            for className in self.assignment[dueDate][dueTime]:
+                if cName == className:
+                    for assignment in self.assignment[dueDate][dueTime][className]:
+                        if aName == assignment:
+                            timePick = input("What time do you want to be notified daily? (HH:MM AM/PM): ")
+                            if self.check_time(timePick):
+                                schedule.every().day.at(timePick).do(self.send_notification, dueDate, dueTime, className, assignment)
+                                print(f"You will be notified daily at {timePick} about {assignment} for {className}.")
+                            else:
+                                print("Invalid time format. Please use HH:MM AM/PM.")
+                                return
+                        else:
+                            print("Assignment not found.")
+                else:
+                    print("Class not found.")
+    
+
 
 
 
