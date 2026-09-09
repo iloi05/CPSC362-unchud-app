@@ -1,8 +1,6 @@
 # This file holds the back-end code for Unchud
 
 from datetime import datetime, timezone
-import pprint 
-
 import time
 import schedule
 from plyer import notification
@@ -26,9 +24,9 @@ class Assignment:
             return True
         except ValueError:
             return False
-    def check_assignment(self):
-        print(self.assignment)
-            
+    def convert(self):
+        # convert the time to a 24 hour format
+        return datetime.strptime(time, "%I:%M %p").strftime("%H:%M")      
 
     # main functions for the program
     def add_assignment(self):
@@ -58,6 +56,8 @@ class Assignment:
         else:
             print("Assignment already exists")
             return
+
+        
 
         
 
@@ -113,28 +113,34 @@ class Assignment:
             print("Invalid date format. Please use YYYY-MM-DD.")
             return
 
-    def setNotif(self, dueDate, dueTime, className, assignment):
-        # test comment
+    def setNotif(self):
         cName = input("What class is this assignment for? ")
         aName = input("What is the name of the assignment you want to be notified about? ")
-        for dueDate in self.assignment:
-            for dueTime in self.assignment[dueDate]:
-                for className in self.assignment[dueDate][dueTime]:
-                    if cName == className:
-                        for assignment in self.assignment[dueDate][dueTime][className]:
-                            if aName == assignment:
-                                timePick = input("What time do you want to be notified daily? (HH:MM AM/PM): ")
-                                if self.check_time(timePick):
-                                    schedule.every().day.at(timePick).do(self.send_notification, dueDate, dueTime, className, assignment)
-                                    print(f"You will be notified daily at {timePick} about {assignment} for {className}.")
-                                else:
-                                    print("Invalid time format. Please use HH:MM AM/PM.")
-                                    return
-                            else:
-                                print("Assignment not found.")
-                    else:
-                        print("Class not found.")
+        if cName not in self.assignment:
+            print("Class not found.")
+            return
+        
+        for due_date in self.assignment[cName]:
+            for due_time in self.assignment[cName][due_date]:
+                for assignment in self.assignment[cName][due_date][due_time]:
+                    if aName == assignment:
+                        timePick = input("What time do you want to be notified daily? (HH:MM AM/PM): ")
+                        if self.check_time(timePick):
+                            notif = (f" STOP CHUDDING! You have {assignment} for {cName} due at {due_time} on {due_date}.")
+                            print(f"You will be notified daily at {timePick} about {assignment} for {cName}.")
+                            cTime = self.convert(timePick)
+                            schedule.every().day.at(cTime).do(notification.notify, title="Unchud Reminder", message=notif)
+                            return
+                        else:
+                            print("Invalid time format. Please use HH:MM AM/PM.")
+                            return
+        print("Assignment not found.")
 
+
+    
+    
+    
+    
     def showAssignments(self):
         for class_name, due_dates in self.assignment.items():
             print(f"---{class_name}---")
