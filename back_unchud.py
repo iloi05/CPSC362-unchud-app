@@ -42,17 +42,17 @@ class Assignment:
         class_name = input("What class is this assignment for? ")
         assignment_name = input("What is the name of this assignment? ")
 
-        if due_date not in self.assignment:
-            self.assignment[due_date] = {}
+        if class_name not in self.assignment:
+            self.assignment[class_name] = {}
 
-        if due_time not in self.assignment[due_date]:
-            self.assignment[due_date][due_time] = {}
+        if due_date not in self.assignment[class_name]:
+            self.assignment[class_name][due_date] = {}
 
-        if class_name not in self.assignment[due_date][due_time]:
-            self.assignment[due_date][due_time][class_name] = {}
+        if due_time not in self.assignment[class_name][due_date]:
+            self.assignment[class_name][due_date][due_time] = {}
 
-        if assignment_name not in self.assignment[due_date][due_time][class_name]:
-            self.assignment[due_date][due_time][class_name][assignment_name] = {}
+        if assignment_name not in self.assignment[class_name][due_date][due_time]:
+            self.assignment[class_name][due_date][due_time] = f"{assignment_name}"
             print(f"You added {assignment_name} to your assignments! Time to unchud")
         else:
             print("Assignment already exists")
@@ -133,7 +133,9 @@ def setNotif(self, dueDate, dueTime, className, assignment):
                             print("Assignment not found.")
                 else:
                     print("Class not found.")
-    
+
+#def showAssignments(self):
+
 
 
 
