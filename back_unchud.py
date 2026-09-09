@@ -1,6 +1,7 @@
 # This file holds the back-end code for Unchud
 
 from datetime import datetime, timezone
+import pprint 
 
 import time
 import schedule
@@ -112,29 +113,40 @@ class Assignment:
             print("Invalid date format. Please use YYYY-MM-DD.")
             return
 
-def setNotif(self, dueDate, dueTime, className, assignment):
-    # test comment
-    cName = input("What class is this assignment for? ")
-    aName = input("What is the name of the assignment you want to be notified about? ")
-    for dueDate in self.assignment:
-        for dueTime in self.assignment[dueDate]:
-            for className in self.assignment[dueDate][dueTime]:
-                if cName == className:
-                    for assignment in self.assignment[dueDate][dueTime][className]:
-                        if aName == assignment:
-                            timePick = input("What time do you want to be notified daily? (HH:MM AM/PM): ")
-                            if self.check_time(timePick):
-                                schedule.every().day.at(timePick).do(self.send_notification, dueDate, dueTime, className, assignment)
-                                print(f"You will be notified daily at {timePick} about {assignment} for {className}.")
+    def setNotif(self, dueDate, dueTime, className, assignment):
+        # test comment
+        cName = input("What class is this assignment for? ")
+        aName = input("What is the name of the assignment you want to be notified about? ")
+        for dueDate in self.assignment:
+            for dueTime in self.assignment[dueDate]:
+                for className in self.assignment[dueDate][dueTime]:
+                    if cName == className:
+                        for assignment in self.assignment[dueDate][dueTime][className]:
+                            if aName == assignment:
+                                timePick = input("What time do you want to be notified daily? (HH:MM AM/PM): ")
+                                if self.check_time(timePick):
+                                    schedule.every().day.at(timePick).do(self.send_notification, dueDate, dueTime, className, assignment)
+                                    print(f"You will be notified daily at {timePick} about {assignment} for {className}.")
+                                else:
+                                    print("Invalid time format. Please use HH:MM AM/PM.")
+                                    return
                             else:
-                                print("Invalid time format. Please use HH:MM AM/PM.")
-                                return
-                        else:
-                            print("Assignment not found.")
-                else:
-                    print("Class not found.")
+                                print("Assignment not found.")
+                    else:
+                        print("Class not found.")
 
-#def showAssignments(self):
+    def showAssignments(self):
+        for class_name, due_dates in self.assignment.items():
+            print(f"---{class_name}---")
+
+            for due_date, due_times in due_dates.items():
+                print(f"---{due_date}---")
+                for due_time, assignment in due_times.items():
+                    print(f"{due_time} - {assignment}")
+
+           
+            
+        
 
 
 
