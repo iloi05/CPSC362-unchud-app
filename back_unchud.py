@@ -112,7 +112,7 @@ class Assignment:
             else:
                 self.moneyCounter -= 5
                 success += f" You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
-            return {"success": True, "message": success}
+                return {"success": True, "message": success}
         
 
     #    # may need to change the way the dictionary is formatted [class][duedate][time][assignment]
@@ -164,7 +164,26 @@ class Assignment:
     #        print("Invalid date format. Please use YYYY-MM-DD.")
     #        return
 
-    #def setNotif(self):
+    def setNotif(self, due_date, due_time, class_name, assignment_name, timePick):
+        if class_name not in self.assignment:
+            return {"success": False, "message": "Class not found."}
+        
+        if due_date not in self.assignment[class_name]:
+            return {"success": False, "message": "Due date not found."}
+        
+        if due_time not in self.assignment[class_name][due_date]:
+            return {"success": False, "message": "Due time not found."}
+        
+        if assignment_name not in self.assignment[class_name][due_date][due_time]:
+            return {"success": False, "message": "Assignment not found."}
+        
+        if not self.check_time(timePick):
+            return {"success": False, "message": "Invalid time format. Please use HH:MM AM/PM."}
+        else:
+            notif = (f" STOP CHUDDING! You have {assignment_name} for {class_name} due at {due_time} on {due_date}.")
+            cTime = self.convert(timePick)
+            schedule.every().day.at(cTime).do(notification.notify, title="Unchud Reminder", message=notif)
+            return {"success": True, "message": f"You will be notified daily at {timePick} about {assignment_name} for {class_name}."}
     #    cName = input("What class is this assignment for? ")
     #    aName = input("What is the name of the assignment you want to be notified about? ")
     #    if cName not in self.assignment:
@@ -215,6 +234,11 @@ def add_assignment(data: AssignmentData):
 @app.post("/mark_assignment")
 def mark_assignment(data: AssignmentData):
     result = tracker.mark_assignment(data.due_date, data.due_time, data.class_name, data.assignment_name)
+    return result
+
+@app.post("/set_notif")
+def set_notif(data: AssignmentData, timePick: str):
+    result = tracker.setNotif(data.due_date, data.due_time, data.class_name, data.assignment_name, timePick)
     return result
         
 
