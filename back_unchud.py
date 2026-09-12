@@ -1,9 +1,26 @@
 # This file holds the back-end code for Unchud
 
+from pydantic import BaseModel
+from fastapi import FastAPI
 from datetime import datetime, timezone
 import time
 import schedule
 from plyer import notification
+
+
+#this creates the fast api application
+app = FastAPI()
+
+
+
+#this created the data model which fast api will reference for what an assignment is 
+#BaseModel basically helps by making sure an assignment follows the parameters for an assignment
+#and also assists in creating dummy assignments when we want to test our functions
+class AssignmentData(BaseModel):
+    due_date: str
+    due_time: str
+    class_name: str
+    assignment_name: str
 
 class Assignment:
     # variables for all functions
