@@ -48,13 +48,13 @@ class Assignment:
     # main functions for the program
     def add_assignment(self, due_date, due_time, class_name, assignment_name):
 
-        due_date = input("When is this assignment due? (YYYY-MM-DD): ")
+        
 
         if not self.check_date(due_date):
             return {"success": False, 
                     "message: ": "Invalid date format. Please use YYYY-MM-DD."}
         
-        due_time = input("What time is this assignment due? (HH:MM AM/PM): ")
+        
 
         if not self.check_time(due_time):
             return {"success": False, 
