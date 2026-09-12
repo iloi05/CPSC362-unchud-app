@@ -107,14 +107,18 @@ class Assignment:
                 self.moneyCounter += 25
                 success += f" You've gained ${self.moneyCounter} for completing this assignment on time!"
             elif datetime.now() > datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p"):
-                if self.moneyCounter == 0 or self.moneyCounter < 0:
+                if self.moneyCounter == 0:
+                    success += f" Your balance is now at ${self.moneyCounter}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
+                elif self.moneyCounter < 0:
                     success += f" You're now in debt! You've lost $0.10 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
                 else:
                     self.moneyCounter -= 0.10
                     success += f" You've lost $0.10 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
             else:
                 self.moneyCounter -= 5
-                if self.moneyCounter == 0 or self.moneyCounter < 0:
+                if self.moneyCounter == 0:
+                    success += f" Your balance is now at ${self.moneyCounter}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
+                elif self.moneyCounter < 0:
                     success += f" You're now in debt! You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
                 else:
                     self.moneyCounter -= 5
@@ -213,7 +217,11 @@ class Assignment:
     #                        return
     #    print("Assignment not found.")
 
-    
+    def money_counter(self):
+        if self.moneyCounter < 0:
+            return {"success": True, "message": f"You're in debt! Your current balance is ${self.moneyCounter}. Start completing assignments to pay it off and not be a chud!"}
+        else:
+            return {"success": True, "message": f"Your current balance is ${self.moneyCounter}."}
 
 
     
