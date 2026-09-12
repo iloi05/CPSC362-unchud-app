@@ -46,17 +46,21 @@ class Assignment:
         return datetime.strptime(time, "%I:%M %p").strftime("%H:%M")      
 
     # main functions for the program
-    def add_assignment(self):
+    def add_assignment(self, due_date, due_time, class_name, assignment_name):
+
         due_date = input("When is this assignment due? (YYYY-MM-DD): ")
+
         if not self.check_date(due_date):
-            print("Invalid date format. Please use YYYY-MM-DD.")
-            return
+            return {"success": False, 
+                    "message: ": "Invalid date format. Please use YYYY-MM-DD."}
+        
         due_time = input("What time is this assignment due? (HH:MM AM/PM): ")
+
         if not self.check_time(due_time):
-            print("Invalid time format. Please use HH:MM AM/PM.")
-            return
-        class_name = input("What class is this assignment for? ")
-        assignment_name = input("What is the name of this assignment? ")
+            return {"success": False, 
+                    "message": "Invalid time format. Please use HH:MM AM/PM."}
+        
+
 
         if class_name not in self.assignment:
             self.assignment[class_name] = {}
@@ -69,10 +73,11 @@ class Assignment:
 
         if assignment_name not in self.assignment[class_name][due_date][due_time]:
             self.assignment[class_name][due_date][due_time] = f"{assignment_name}"
-            print(f"You added {assignment_name} to your assignments! Time to unchud")
+            return {"success": True, 
+                    "message": f"You added {assignment_name} to your assignments! Time to unchud"}
         else:
-            print("Assignment already exists")
-            return
+            return {"sucess": False, 
+                    "message": "Assignment already exists"}
 
         
 
@@ -167,8 +172,16 @@ class Assignment:
                 for due_time, assignment in due_times.items():
                     print(f"{due_time} - {assignment}")
 
-           
-            
+#code below creates object in backend for us to utilize fastapi and data model 
+
+tracker = Assignment()
+
+#below is our API endpoint, this is how we interact with our backend functions through the API 
+
+@app.post("/add_assignment")
+def add_assignment(data: AssignmentData):
+    result = tracker.add_assignment(data.due_date, data.due_time, data.class_name, data.assignment_name)
+    return result
         
 
 
