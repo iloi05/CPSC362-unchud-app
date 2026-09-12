@@ -3,7 +3,7 @@
 from pydantic import BaseModel
 from fastapi import FastAPI
 from datetime import datetime
-from zoneinfo import ZoneInfo
+# from zoneinfo import ZoneInfo
 import time
 import schedule
 from plyer import notification
@@ -119,7 +119,7 @@ class Assignment:
                     success += f" Your balance is now at ${self.moneyCounter:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
                 else:
                     success += f" You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter:.2f}."
-            return {"success": True, "message": success}
+                return {"success": True, "message": success}
         
 
     #    # may need to change the way the dictionary is formatted [class][duedate][time][assignment]
