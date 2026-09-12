@@ -211,6 +211,11 @@ tracker = Assignment()
 def add_assignment(data: AssignmentData):
     result = tracker.add_assignment(data.due_date, data.due_time, data.class_name, data.assignment_name)
     return result
+
+@app.post("/mark_assignment")
+def mark_assignment(data: AssignmentData):
+    result = tracker.mark_assignment(data.due_date, data.due_time, data.class_name, data.assignment_name)
+    return result
         
 
 
