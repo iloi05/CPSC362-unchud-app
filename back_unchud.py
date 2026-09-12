@@ -107,11 +107,18 @@ class Assignment:
                 self.moneyCounter += 25
                 success += f" You've gained ${self.moneyCounter} for completing this assignment on time!"
             elif datetime.now() > datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p"):
-                self.moneyCounter -= 0.10
-                success += f" You've lost $0.10 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
+                if self.moneyCounter == 0 or self.moneyCounter < 0:
+                    success += f" You're now in debt! You've lost $0.10 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
+                else:
+                    self.moneyCounter -= 0.10
+                    success += f" You've lost $0.10 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
             else:
                 self.moneyCounter -= 5
-                success += f" You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
+                if self.moneyCounter == 0 or self.moneyCounter < 0:
+                    success += f" You're now in debt! You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
+                else:
+                    self.moneyCounter -= 5
+                    success += f" You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
                 return {"success": True, "message": success}
         
 
@@ -205,6 +212,8 @@ class Assignment:
     #                        print("Invalid time format. Please use HH:MM AM/PM.")
     #                        return
     #    print("Assignment not found.")
+
+    
 
 
     
