@@ -2,7 +2,8 @@
 
 from pydantic import BaseModel
 from fastapi import FastAPI
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import time
 import schedule
 from plyer import notification
@@ -26,7 +27,7 @@ class Assignment:
     # variables for all functions
     def __init__(self):
         self.assignment = {}
-        self.moneyCounter = 0
+        self.moneyCounter = max(0.0)
 
     # helper functions
     def check_date(self, date):
@@ -102,28 +103,23 @@ class Assignment:
             self.assignment[class_name][due_date][due_time].remove(assignment_name)
             if datetime.now() < datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p"):
                 self.moneyCounter += 50
-                success += f" You've gained ${self.moneyCounter} for completing this assignment early!"
+                success += f" You've gained ${self.moneyCounter:.2f} for completing this assignment early!"
             elif datetime.now() == datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p"):
                 self.moneyCounter += 25
-                success += f" You've gained ${self.moneyCounter} for completing this assignment on time!"
+                success += f" You've gained ${self.moneyCounter:.2f} for completing this assignment on time!"
             elif datetime.now() > datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p"):
                 if self.moneyCounter == 0:
-                    success += f" Your balance is now at ${self.moneyCounter}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
-                elif self.moneyCounter < 0:
-                    success += f" You're now in debt! You've lost $0.10 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
+                    success += f" Your balance is now at ${self.moneyCounter:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
                 else:
                     self.moneyCounter -= 0.10
-                    success += f" You've lost $0.10 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
+                    success += f" You've lost $0.10 for completing this assignment late. Your remaining balance is ${self.moneyCounter:.2f}."
             else:
                 self.moneyCounter -= 5
                 if self.moneyCounter == 0:
-                    success += f" Your balance is now at ${self.moneyCounter}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
-                elif self.moneyCounter < 0:
-                    success += f" You're now in debt! You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
+                    success += f" Your balance is now at ${self.moneyCounter:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
                 else:
-                    self.moneyCounter -= 5
-                    success += f" You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter}."
-                return {"success": True, "message": success}
+                    success += f" You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter:.2f}."
+            return {"success": True, "message": success}
         
 
     #    # may need to change the way the dictionary is formatted [class][duedate][time][assignment]
@@ -257,6 +253,8 @@ def mark_assignment(data: AssignmentData):
 def set_notif(data: AssignmentData, timePick: str):
     result = tracker.setNotif(data.due_date, data.due_time, data.class_name, data.assignment_name, timePick)
     return result
+
+
         
 
 
