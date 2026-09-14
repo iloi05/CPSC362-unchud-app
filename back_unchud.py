@@ -1,10 +1,10 @@
 # This file holds the back-end code for Unchud
 
-from pydantic import BaseModel
-from fastapi import FastAPI
+from pydantic import BaseModel, Field
+from fastapi import FastAPI, HTTPException, Depends
 from datetime import datetime
-# from zoneinfo import ZoneInfo
 import time
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import schedule
 from plyer import notification
 
@@ -44,7 +44,10 @@ class Assignment:
             return False
     def convert(self):
         # convert the time to a 24 hour format
-        return datetime.strptime(time, "%I:%M %p").strftime("%H:%M")      
+        return datetime.strptime(time, "%I:%M %p").strftime("%H:%M") 
+
+    def get_tz(tz: str = Header(default))
+
 
     # main functions for the program
     def add_assignment(self, due_date, due_time, class_name, assignment_name):
@@ -171,7 +174,7 @@ class Assignment:
     #        print("Invalid date format. Please use YYYY-MM-DD.")
     #        return
 
-    def setNotif(self, due_date, due_time, class_name, assignment_name, timePick):
+    def setNotif(self, due_date, due_time, class_name, assignment_name, timePick, ):
         if class_name not in self.assignment:
             return {"success": False, "message": "Class not found."}
         
