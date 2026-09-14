@@ -21,6 +21,7 @@ class AssignmentData(BaseModel):
     due_time: str
     class_name: str
     assignment_name: str
+    timePick: str
 
 class Assignment:
     # variables for all functions
@@ -122,35 +123,24 @@ class Assignment:
         
 
 
-    def setNotif(self, due_date, due_time, class_name, assignment_name, timePick):
-        if class_name not in self.assignment:
-            return {"success": False, "message": "Class not found."}
-        
-        if due_date not in self.assignment[class_name]:
-            return {"success": False, "message": "Due date not found."}
-
-        if not self.check_time(due_time):
-            return{"success": False, "message": "Invalid time format. Please use HH:MM AM/PM"}
-        if due_time not in self.assignment[class_name][due_date]:
-            return {"success": False, "message": "Due time not found."}
-        
-        if assignment_name not in self.assignment[class_name][due_date][due_time]:
-            return {"success": False, "message": "Assignment not found."}
-        
-        if not self.check_time(timePick):
-            return {"success": False, "message": "Invalid time format. Please use HH:MM AM/PM."}
+    def setNotif(self, timePick):
+        if not self.assignment:
+            return {"success": False, "message": f"You have no assignments to be notified about :)."}
         else:
-                notif = (f" STOP CHUDDING! You have {assignment_name} for {class_name} due at {due_time} on {due_date}.")
-                cTime = self.convert(timePick)
-                schedule.every().day.at(cTime).do(notification.notify, title="Unchud Reminder", message=notif)
-                return {"success": True, "message": f"You will be notified daily at {timePick} about {assignment_name} for {class_name}."}
+            # less specific message encourages more app use
+            notif = (f" STOP CHUDDING! You have assignemnts to do!")
+            if not self.check_time(timePick):
+                return{"success": False, "message": f"Invalid time format. Please use HH:MM AM/PM."}
+            cTime = self.convert(timePick)
+            schedule.every().day.at(cTime).do(notification.notify, title="Unchud Reminder", message=notif)
+            return {"success": True, "message": f"You will be notified daily at {timePick} about your assignments."}
 
 
     def money_counter(self):
-        if self.moneyCounter < 0:
-            return {"success": True, "message": f"You're in debt! Your current balance is ${self.moneyCounter}. Start completing assignments to pay it off and not be a chud!"}
+        if self.moneyCounter == 0:
+            return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Start completing assignments to not be a chud!"}
         else:
-            return {"success": True, "message": f"Your current balance is ${self.moneyCounter}."}
+            return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Great job not being a chud!"}
     
     
     def showAssignments(self):
@@ -179,8 +169,8 @@ def mark_assignment(data: AssignmentData):
     return result
 
 @app.post("/set_notif")
-def set_notif(data: AssignmentData, timePick: str):
-    result = tracker.setNotif(data.due_date, data.due_time, data.class_name, data.assignment_name, timePick)
+def set_notif(data: AssignmentData):
+    result = tracker.setNotif(data.timePick)
     return result
 
 
