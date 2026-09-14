@@ -29,6 +29,7 @@ class Assignment:
         self.assignment = {}
         self.moneyCounter = max(0.0)
 
+
     # helper functions
     def check_date(self, date):
         try:
@@ -136,11 +137,11 @@ class Assignment:
             return {"success": True, "message": f"You will be notified daily at {timePick} about your assignments."}
 
 
-    def money_counter(self):
-        if self.moneyCounter == 0:
-            return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Start completing assignments to not be a chud!"}
-        else:
-            return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Great job not being a chud!"}
+    #def money_counter(self):
+    #    if self.moneyCounter == 0:
+    #        return {"success": False, "message": f"Your current balance is ${self.moneyCounter}. Start completing assignments to not be a chud!"}
+    #    else:
+    #        return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Great job not being a chud!"}
     
     
     def showAssignments(self):
