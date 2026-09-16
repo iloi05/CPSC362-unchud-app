@@ -22,13 +22,12 @@ class AssignmentData(BaseModel):
     class_name: str
     assignment_name: str
     timePick: str
-    choin: float
 
 class Assignment:
     # variables for all functions
     def __init__(self):
         self.assignment = {}
-        self.moneyCounter = max(0.0)
+        self.moneyCounter = 0
 
 
     # helper functions
@@ -157,13 +156,32 @@ class Assignment:
 class Game(Assignment):
     def __init__(self, choin):
         self.choin = choin
+
+    def checkBank(self):
+        self.catalog = {
+            c:{"SR": {"SR-Hat": {"price": 150}}},
+            "R": {"R-Hat": {"price": 100}},
+            "N": {"N-Hat": {"price": 50}},
+            "SR": {"SR-face": {"price": 125}},
+            "R": {"R-face": {"price": 115}},
+            "N": {"N-face": {"price": 40}},
+            "SR": {"SR-body": {"price": 200}},
+            "R": {"R-body": {"price": 150}},
+            "N": {"N-body": {"price": 140}},
+            "SR": {"SR-Hat": {"price": 190}},
+            "R": {"R-Hat": {"price": 160}},
+            "N": {"N-Hat": {"price": 130}},
+            "SR": {"SR-Hat": {"price": 120}},
+            "R": {"R-Hat": {"price": 110}},
+            "N": {"N-Hat": {"price": 90}}
+        }
         
-    def buy(self):
-        choin = Assignment.moneyCounter
-        if choin > 0:
-            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
-        else:
-            return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
+    #def buy(self):
+    #    choin = Assignment.moneyCounter
+    #    if choin > 0:
+    #        return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
+    #    elif choin == 0 or choin < self.catalog[]:
+    #        return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
 
 
 
