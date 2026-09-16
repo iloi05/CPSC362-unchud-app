@@ -137,11 +137,11 @@ class Assignment:
             return {"success": True, "message": f"You will be notified daily at {timePick} about your assignments."}
 
 
-    #def money_counter(self):
-    #    if self.moneyCounter == 0:
-    #        return {"success": False, "message": f"Your current balance is ${self.moneyCounter}. Start completing assignments to not be a chud!"}
-    #    else:
-    #        return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Great job not being a chud!"}
+    def money_counter(self):
+        if self.moneyCounter == 0:
+            return {"success": False, "message": f"Your current balance is ${self.moneyCounter}. Start completing assignments to not be a chud!"}
+        else:
+            return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Great job not being a chud!"}
     
     
     def showAssignments(self):
@@ -153,35 +153,21 @@ class Assignment:
                 for due_time, assignment in due_times.items():
                     print(f"{due_time} - {assignment}")
 
-class Game(Assignment):
-    def __init__(self, choin):
-        self.choin = choin
-
-    def checkBank(self):
-        self.catalog = {
-            c:{"SR": {"SR-Hat": {"price": 150}}},
-            "R": {"R-Hat": {"price": 100}},
-            "N": {"N-Hat": {"price": 50}},
-            "SR": {"SR-face": {"price": 125}},
-            "R": {"R-face": {"price": 115}},
-            "N": {"N-face": {"price": 40}},
-            "SR": {"SR-body": {"price": 200}},
-            "R": {"R-body": {"price": 150}},
-            "N": {"N-body": {"price": 140}},
-            "SR": {"SR-Hat": {"price": 190}},
-            "R": {"R-Hat": {"price": 160}},
-            "N": {"N-Hat": {"price": 130}},
-            "SR": {"SR-Hat": {"price": 120}},
-            "R": {"R-Hat": {"price": 110}},
-            "N": {"N-Hat": {"price": 90}}
-        }
-        
-    #def buy(self):
-    #    choin = Assignment.moneyCounter
-    #    if choin > 0:
-    #        return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
-    #    elif choin == 0 or choin < self.catalog[]:
-    #        return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
+#class Game(Assignment):
+#    def __init__(self, choin):
+#        self.choin = choin
+#
+#    def checkBank(self, c, accessory, price, ):
+#        self.catalog = {
+#
+#        }
+#        
+#    def buy(self):
+#        choin = Assignment.moneyCounter
+#        if choin > 0:
+#            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
+#        elif choin == 0 or choin <:
+#            return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
 
 
 
@@ -205,17 +191,3 @@ def mark_assignment(data: AssignmentData):
 def set_notif(data: AssignmentData):
     result = tracker.setNotif(data.timePick)
     return result
-
-
-        
-
-
-
-
-
-        
-
-
-
-        
-        
