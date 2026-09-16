@@ -22,6 +22,7 @@ class AssignmentData(BaseModel):
     class_name: str
     assignment_name: str
     timePick: str
+    choin: float
 
 class Assignment:
     # variables for all functions
@@ -152,6 +153,19 @@ class Assignment:
                 print(f"---{due_date}---")
                 for due_time, assignment in due_times.items():
                     print(f"{due_time} - {assignment}")
+
+class Game(Assignment):
+    def __init__(self, choin):
+        self.choin = choin
+        
+    def buy(self):
+        choin = Assignment.moneyCounter
+        if choin > 0:
+            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
+        else:
+            return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
+
+
 
 #code below creates object in backend for us to utilize fastapi and data model 
 
