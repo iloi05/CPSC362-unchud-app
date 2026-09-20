@@ -21,7 +21,6 @@ class AssignmentData(BaseModel):
     due_time: str
     class_name: str
     assignment_name: str
-    timePick: str
 
 class Assignment:
     # variables for all functions
@@ -74,7 +73,9 @@ class Assignment:
             self.assignment[class_name][due_date][due_time] = {}
 
         if assignment_name not in self.assignment[class_name][due_date][due_time]:
-            self.assignment[class_name][due_date][due_time] = f"{assignment_name}"
+            # Had to change from string to list so we can remove in mark
+            assign = self.assignment[class_name][due_date][due_time] = []
+            assign.append(assignment_name)
             return {"success": True, 
                     "message": f"You added {assignment_name} to your assignments! Time to unchud"}
         else:
@@ -94,6 +95,7 @@ class Assignment:
         if not self.check_time(due_time):
                     return {"success": False, 
                         "message": "Invalid time format. Please use HH:MM AM/PM."}
+        
 
         
 
@@ -102,25 +104,21 @@ class Assignment:
         else:
             success = f"Congrats! You completed {assignment_name} for {class_name}! You get money for not being a chud! :D"
             self.assignment[class_name][due_date][due_time].remove(assignment_name)
-            if datetime.now() < datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p"):
+            now = datetime.now()
+            due = datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p")
+            if now < due:
                 self.moneyCounter += 50
                 success += f" You've gained ${self.moneyCounter:.2f} for completing this assignment early!"
-            elif datetime.now() == datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p"):
+            elif now == due:
                 self.moneyCounter += 25
                 success += f" You've gained ${self.moneyCounter:.2f} for completing this assignment on time!"
-            elif datetime.now() > datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p"):
-                if self.moneyCounter == 0:
-                    success += f" Your balance is now at ${self.moneyCounter:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
-                else:
-                    self.moneyCounter -= 0.10
-                    success += f" You've lost $0.10 for completing this assignment late. Your remaining balance is ${self.moneyCounter:.2f}."
-            else:
+            elif now > due:
                 self.moneyCounter -= 5
+                success += f" You've lost $5 for completing this assignment late. Your remaining balance is ${self.moneyCounter:.2f}."
                 if self.moneyCounter == 0:
                     success += f" Your balance is now at ${self.moneyCounter:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
-                else:
-                    success += f" You've lost $5.00 for completing this assignment late. Your remaining balance is ${self.moneyCounter:.2f}."
-                return {"success": True, "message": success}
+            return {"success": True, "message": success}
+           
         
 
 
