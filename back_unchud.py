@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
-from datetime import datetime
+from datetime import datetime, date
 import time
 import schedule
 from plyer import notification
@@ -106,13 +106,18 @@ class Assignment:
             self.assignment[class_name][due_date][due_time].remove(assignment_name)
             now = datetime.now()
             due = datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p")
+            today = date.today()
+            curr_time = now.time()
             if now < due:
                 self.moneyCounter += 50
                 success += f" You've gained ${self.moneyCounter:.2f} for completing this assignment early!"
             elif now == due:
                 self.moneyCounter += 25
                 success += f" You've gained ${self.moneyCounter:.2f} for completing this assignment on time!"
-            elif now > due:
+            elif today == due_date and curr_time > due_time:
+                self.moneyCounter -= 0.10
+                success += f" You've lost $0.10 for completing this assignment a few minutes late. Your remaining balance is ${self.moneyCounter:.2f}."
+            elif today > due_date:
                 self.moneyCounter -= 5
                 success += f" You've lost $5 for completing this assignment late. Your remaining balance is ${self.moneyCounter:.2f}."
                 if self.moneyCounter == 0:
