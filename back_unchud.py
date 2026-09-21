@@ -1,11 +1,13 @@
 # This file holds the back-end code for Unchud
 
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, BackgroundTasks
 from datetime import datetime, date
-import time
+from pydantic import BaseModel
 import schedule
 from plyer import notification
+# pip install email-validator
+from email_validator import validate_email, EmailNotValidError
 
 
 #this creates the fast api application
@@ -21,6 +23,11 @@ class AssignmentData(BaseModel):
     due_time: str
     class_name: str
     assignment_name: str
+
+class NotificationData(BaseModel):
+    timePick: str
+    # for email notifications
+    email: str
 
 class Assignment:
     # variables for all functions
@@ -42,9 +49,17 @@ class Assignment:
             return True
         except ValueError:
             return False
-    def convert(self):
+    def convert(self, time):
         # convert the time to a 24 hour format
-        return datetime.strptime(time, "%I:%M %p").strftime("%H:%M") 
+        return datetime.strptime(time, "%I:%M %p").strftime("%H:%M")
+
+    def check_email(self, email):
+        try:
+            emailAddy = validate_email(email, check_deliverability=True)
+            normalized_email = emailAddy.ascii_email
+            return True, normalized_email
+        except EmailNotValidError as e:
+            return False, str(e)
 
     # main functions for the program
     def add_assignment(self, due_date, due_time, class_name, assignment_name):
@@ -127,34 +142,36 @@ class Assignment:
         
 
 
-    def setNotif(self, timePick):
+    def setNotif(self, timePick, email):
         if not self.assignment:
             return {"success": False, "message": f"You have no assignments to be notified about :)."}
         else:
-            # less specific message encourages more app use
-            notif = (f" STOP CHUDDING! You have assignemnts to do!")
-            if not self.check_time(timePick):
-                return{"success": False, "message": f"Invalid time format. Please use HH:MM AM/PM."}
-            cTime = self.convert(timePick)
-            schedule.every().day.at(cTime).do(notification.notify, title="Unchud Reminder", message=notif)
-            return {"success": True, "message": f"You will be notified daily at {timePick} about your assignments."}
+            if self.check_date(email):
+                # less specific message encourages more app use
+                notif = (f" STOP CHUDDING! You have assignemnts to do!")
+                if not self.check_time(timePick):
+                    return{"success": False, "message": f"Invalid time format. Please use HH:MM AM/PM."}
+                cTime = self.convert(timePick)
+                schedule.every().day.at(cTime).do(notification.notify, title="Unchud Reminder", message=notif)
+                return {"success": True, "message": f"You will be notified daily at {timePick} about your assignments."}
+            else:
+                return {"success": False, "message": f"Erm...your email is invalid apparently"}
 
-
-    def money_counter(self):
-        if self.moneyCounter == 0:
-            return {"success": False, "message": f"Your current balance is ${self.moneyCounter}. Start completing assignments to not be a chud!"}
-        else:
-            return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Great job not being a chud!"}
+    #def money_counter(self):
+    #    if self.moneyCounter == 0:
+    #        return {"success": False, "message": f"Your current balance is ${self.moneyCounter}. Start completing assignments to not be a chud!"}
+    #    else:
+    #        return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Great job not being a chud!"}
     
     
-    def showAssignments(self):
-        for class_name, due_dates in self.assignment.items():
-            print(f"---{class_name}---")
-
-            for due_date, due_times in due_dates.items():
-                print(f"---{due_date}---")
-                for due_time, assignment in due_times.items():
-                    print(f"{due_time} - {assignment}")
+    #def showAssignments(self):
+    #    for class_name, due_dates in self.assignment.items():
+    #        print(f"---{class_name}---")
+#
+    #        for due_date, due_times in due_dates.items():
+    #            print(f"---{due_date}---")
+    #            for due_time, assignment in due_times.items():
+    #                print(f"{due_time} - {assignment}")
 
 #class Game(Assignment):
 #    def __init__(self, choin):
@@ -191,6 +208,6 @@ def mark_assignment(data: AssignmentData):
     return result
 
 @app.post("/set_notif")
-def set_notif(data: AssignmentData):
-    result = tracker.setNotif(data.timePick)
+def set_notif(data: NotificationData):
+    result = tracker.setNotif(data.timePick, data.email)
     return result
