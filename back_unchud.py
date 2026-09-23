@@ -173,21 +173,49 @@ class Assignment:
     #            for due_time, assignment in due_times.items():
     #                print(f"{due_time} - {assignment}")
 
-#class Game(Assignment):
-#    def __init__(self, choin):
-#        self.choin = choin
-#
-#    def checkBank(self, c, accessory, price, ):
-#        self.catalog = {
-#
-#        }
-#        
-#    def buy(self):
-#        choin = Assignment.moneyCounter
-#        if choin > 0:
-#            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
-#        elif choin == 0 or choin <:
-#            return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
+class Game(Assignment):
+    def __init__(self, choin):
+        self.choin = choin
+
+    def checkBank(self, headwear, face, body, pants, feet):
+        self.catalog = {
+            headwear : {
+                "SR" : 190,
+                "R" : 170,
+                "N" : 150,
+                },
+           
+            face : {
+                "SR": 180,
+                "R" : 160,
+                "N" : 140
+            },
+            
+            body : {
+                "SR" : 200,
+                "R" : 180,
+                "N" : 160
+            },
+            
+            pants : {
+                "SR" : 200,
+                "R" : 180,
+                "N" : 160
+            },
+           
+            feet : {
+                "SR" : 160,
+                "R" : 140,
+                "N" : 120
+            }
+        }
+
+    def buy(self):
+        choin = Assignment.moneyCounter
+        if choin > 0:
+            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
+        elif choin == 0 or choin < 0:
+            return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
 
 
 
