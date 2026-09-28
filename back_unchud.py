@@ -6,6 +6,7 @@ from datetime import datetime, date
 from pydantic import BaseModel
 import schedule
 from plyer import notification
+import json # for game aspect
 # pip install email-validator
 from email_validator import validate_email, EmailNotValidError
 
@@ -33,7 +34,7 @@ class Assignment:
     # variables for all functions
     def __init__(self):
         self.assignment = {}
-        self.moneyCounter = 0
+        self.choin = 0
 
 
     # helper functions
@@ -124,19 +125,19 @@ class Assignment:
             today = date.today()
             curr_time = now.time()
             if now < due:
-                self.moneyCounter += 50
-                success += f" You've gained ${self.moneyCounter:.2f} for completing this assignment early!"
+                self.choin += 50
+                success += f" You've gained ${self.choin:.2f} for completing this assignment early!"
             elif now == due:
-                self.moneyCounter += 25
-                success += f" You've gained ${self.moneyCounter:.2f} for completing this assignment on time!"
+                self.choin += 25
+                success += f" You've gained ${self.choin:.2f} for completing this assignment on time!"
             elif today == due_date and curr_time > due_time:
-                self.moneyCounter -= 0.10
-                success += f" You've lost $0.10 for completing this assignment a few minutes late. Your remaining balance is ${self.moneyCounter:.2f}."
+                self.choin -= 0.10
+                success += f" You've lost $0.10 for completing this assignment a few minutes late. Your remaining balance is ${self.choin:.2f}."
             elif today > due_date:
-                self.moneyCounter -= 5
-                success += f" You've lost $5 for completing this assignment late. Your remaining balance is ${self.moneyCounter:.2f}."
-                if self.moneyCounter == 0:
-                    success += f" Your balance is now at ${self.moneyCounter:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
+                self.choin -= 5
+                success += f" You've lost $5 for completing this assignment late. Your remaining balance is ${self.choin:.2f}."
+                if self.choin == 0:
+                    success += f" Your balance is now at ${self.choin:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
             return {"success": True, "message": success}
            
         
@@ -174,36 +175,34 @@ class Assignment:
     #                print(f"{due_time} - {assignment}")
 
 class Game(Assignment):
-    def __init__(self, choin):
-        self.choin = choin
+    def __init__(self):
 
-    def checkBank(self, headwear, face, body, pants, feet):
         self.catalog = {
-            headwear : {
+            "headwear" : {
                 "SR" : 190,
                 "R" : 170,
                 "N" : 150,
                 },
            
-            face : {
+            "face" : {
                 "SR": 180,
                 "R" : 160,
                 "N" : 140
             },
             
-            body : {
+            "body" : {
                 "SR" : 200,
                 "R" : 180,
                 "N" : 160
             },
             
-            pants : {
+            "pants" : {
                 "SR" : 200,
                 "R" : 180,
                 "N" : 160
             },
            
-            feet : {
+            "feet" : {
                 "SR" : 160,
                 "R" : 140,
                 "N" : 120
@@ -211,11 +210,19 @@ class Game(Assignment):
         }
 
     def buy(self):
-        choin = Assignment.moneyCounter
-        if choin > 0:
-            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
-        elif choin == 0 or choin < 0:
-            return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
+        p_inventory = []
+        choin = self.choin
+        product = self.catalog[item][rank]
+        for item in self.catalog:
+            for rank in self.catalog[item]:
+                price = self.catalog[item][rank]
+                if choin >= price:
+                    choin -= price
+                    p_inventory.append(item)
+                    self.catalog.remove(product)
+                    return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
+                elif choin < price:
+                    return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
 
 
 
