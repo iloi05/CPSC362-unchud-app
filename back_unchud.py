@@ -30,6 +30,11 @@ class NotificationData(BaseModel):
     # for email notifications
     email: str
 
+class GameData(BaseModel):
+    item: str
+    rank: str
+
+
 class Assignment:
     # variables for all functions
     def __init__(self):
@@ -209,7 +214,7 @@ class Game(Assignment):
             }
         }
 
-    def buy(self):
+    def buy(self, item, rank):
         p_inventory = []
         choin = self.choin
         product = self.catalog[item][rank]
@@ -229,6 +234,7 @@ class Game(Assignment):
 #code below creates object in backend for us to utilize fastapi and data model 
 
 tracker = Assignment()
+game = Game()
 
 #below is our API endpoint, this is how we interact with our backend functions through the API 
 
@@ -245,4 +251,9 @@ def mark_assignment(data: AssignmentData):
 @app.post("/set_notif")
 def set_notif(data: NotificationData):
     result = tracker.setNotif(data.timePick, data.email)
+    return result
+
+@app.post("/buy")
+def buy(data: GameData):
+    result = game.buy(data.item, data.rank)
     return result
