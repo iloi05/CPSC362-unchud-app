@@ -180,8 +180,9 @@ class Assignment:
     #                print(f"{due_time} - {assignment}")
 
 class Game(Assignment):
-    def __init__(self):
-
+    def __init__(self, tracker):
+        super().__init__()
+        self.tracker = tracker
         self.catalog = {
             "headwear" : {
                 "SR" : 190,
@@ -213,28 +214,23 @@ class Game(Assignment):
                 "N" : 120
             }
         }
+        self.p_inventory = []
 
     def buy(self, item, rank):
-        p_inventory = []
-        choin = self.choin
-        product = self.catalog[item][rank]
-        for item in self.catalog:
-            for rank in self.catalog[item]:
-                price = self.catalog[item][rank]
-                if choin >= price:
-                    choin -= price
-                    p_inventory.append(item)
-                    self.catalog.remove(product)
-                    return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
-                elif choin < price:
-                    return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
+        price = self.catalog[item][rank]
+        if self.tracker.choin >= price:
+            self.tracker.choin -= price
+            self.p_inventory.append((item, rank))
+            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
+        else:
+            return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
 
 
 
 #code below creates object in backend for us to utilize fastapi and data model 
 
 tracker = Assignment()
-game = Game()
+game = Game(tracker)
 
 #below is our API endpoint, this is how we interact with our backend functions through the API 
 
