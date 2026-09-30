@@ -5,10 +5,10 @@ from fastapi import FastAPI, BackgroundTasks
 from datetime import datetime, date
 from pydantic import BaseModel
 import schedule
-from plyer import notification
 import json # for game aspect
 # pip install email-validator
 from email_validator import validate_email, EmailNotValidError
+
 
 
 #this creates the fast api application
@@ -150,18 +150,18 @@ class Assignment:
 
     def setNotif(self, timePick, email):
         if not self.assignment:
-            return {"success": False, "message": f"You have no assignments to be notified about :)."}
+            return {"success": True, "message": f"You have no assignments to be notified about :)."}
         else:
-            if self.check_date(email):
-                # less specific message encourages more app use
-                notif = (f" STOP CHUDDING! You have assignemnts to do!")
-                if not self.check_time(timePick):
-                    return{"success": False, "message": f"Invalid time format. Please use HH:MM AM/PM."}
-                cTime = self.convert(timePick)
-                schedule.every().day.at(cTime).do(notification.notify, title="Unchud Reminder", message=notif)
-                return {"success": True, "message": f"You will be notified daily at {timePick} about your assignments."}
-            else:
-                return {"success": False, "message": f"Erm...your email is invalid apparently"}
+            user_email = input("Please enter your email: ").strip()
+
+            if self.check_email(user_email):
+                print("Email is valid.")
+            else: 
+                print("Email not valid! Try again.")
+
+        
+
+            
 
     #def money_counter(self):
     #    if self.moneyCounter == 0:
