@@ -152,14 +152,14 @@ class Assignment:
         
 
 
-    def random_notif(self, timePick, email):
+    def random_notif(self):
         if not self.assignment:
             return {"success": True, "message": f"You have no assignments to be notified about :)."}
         
         class_name = random.choice(list(self.assignment.keys()))
         due_date = random.choice(list(self.assignment[class_name].keys()))
         due_time = random.choice(list(self.assignment[class_name][due_date].keys()))
-        assignment_name = random.choice(list(self.assignment[class_name][due_date][due_time].keys()))
+        assignment_name = random.choice(list(self.assignment[class_name][due_date][due_time]))
 
         toast("Heads up Chud!", f"{assignment_name} for {class_name} is due {due_date} at {due_time}!")
 
@@ -262,10 +262,6 @@ def mark_assignment(data: AssignmentData):
     result = tracker.mark_assignment(data.due_date, data.due_time, data.class_name, data.assignment_name)
     return result
 
-@app.post("/set_notif")
-def set_notif(data: NotificationData):
-    result = tracker.setNotif(data.timePick, data.email)
-    return result
 
 @app.post("/buy")
 def buy(data: GameData):
