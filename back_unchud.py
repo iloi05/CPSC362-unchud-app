@@ -4,7 +4,8 @@ from pydantic import BaseModel
 from fastapi import FastAPI, BackgroundTasks
 from datetime import datetime, date
 from pydantic import BaseModel
-import schedule
+from win11toast import toast
+import random
 import json # for game aspect
 # pip install email-validator
 from email_validator import validate_email, EmailNotValidError
@@ -151,15 +152,15 @@ class Assignment:
     def setNotif(self, timePick, email):
         if not self.assignment:
             return {"success": True, "message": f"You have no assignments to be notified about :)."}
-        else:
-            user_email = input("Please enter your email: ").strip()
-
-            if self.check_email(user_email):
-                print("Email is valid.")
-            else: 
-                print("Email not valid! Try again.")
-
         
+        class_name = random.choice(list(self.assignment.keys()))
+        due_date = random.choice(list(self.assignment[class_name].keys()))
+        due_time = random.choice(list(self.assignment[class_name][due_date].keys()))
+        assignment_name = random.choice(list(self.assignment[class_name][due_date][due_time].keys()))
+
+        toast("Heads up Chud!", f"{assignment_name} for {class_name} is due {due_date} at {due_time}!")
+
+        return {"Success": True, "message": "Notification has been sent!"}
 
             
 
