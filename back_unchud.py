@@ -6,6 +6,9 @@ from datetime import datetime, date
 from pydantic import BaseModel
 from win11toast import toast
 import random
+import schedule
+import threading
+import time
 import json # for game aspect
 # pip install email-validator
 from email_validator import validate_email, EmailNotValidError
@@ -149,7 +152,7 @@ class Assignment:
         
 
 
-    def setNotif(self, timePick, email):
+    def random_notif(self, timePick, email):
         if not self.assignment:
             return {"success": True, "message": f"You have no assignments to be notified about :)."}
         
@@ -232,6 +235,20 @@ class Game(Assignment):
 
 tracker = Assignment()
 game = Game(tracker)
+
+#let's schedule know we should be doing this every 10 sec
+schedule.every(10).seconds.do(tracker.random_notif)
+
+#wraps the schedule execution for seperate thread
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+#creates seperate thread so our program doesn't get stuck in infinite loop just giving notifications
+schedule_thread = threading.Thread(target=run_scheduler, daemon= True)
+schedule_thread.start()
+
 
 #below is our API endpoint, this is how we interact with our backend functions through the API 
 
