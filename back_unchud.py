@@ -221,11 +221,13 @@ class Game(Assignment):
         self.p_inventory = []
 
     def buy(self, item, rank):
+        item = item.lower()
+        rank = rank.upper()
         price = self.catalog[item][rank]
         if self.tracker.choin >= price:
             self.tracker.choin -= price
             self.p_inventory.append((item, rank))
-            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an clothing item for your avatar!"}
+            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an {rank} {item} for your avatar!"}
         else:
             return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
 
