@@ -1,7 +1,7 @@
 # This file holds the back-end code for Unchud
 
 from pydantic import BaseModel
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, FileResponse
 from datetime import datetime, date
 from pydantic import BaseModel
 from win11toast import toast
@@ -269,3 +269,7 @@ def mark_assignment(data: AssignmentData):
 def buy(data: GameData):
     result = game.buy(data.item, data.rank)
     return result
+
+@app.get("/home")
+def home():
+    return FileResponse("home.html")
