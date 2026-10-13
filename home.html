@@ -1,46 +1,298 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+
     <style>
         body {
             background-color: rgb(51, 62, 66);
             margin: 0;
+            font-family: Arial, sans-serif;
         }
+
+        /* Navbar */
         .navbar {
             background-color: rgb(124, 52, 213);
             color: white;
             padding: 10px;
-            text-align: right;
-            font-family: Arial, sans-serif;
-            font-size:large;
+            font-size: large;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .navbar a,
         .navbar a:visited {
             color: white;
             text-decoration: none;
         }
+
         .navbar a:hover {
             text-decoration: underline;
             color: rgb(250, 247, 229);
         }
+
         .logo {
             font-size: 24px;
             font-weight: bold;
             font-family: Copperplate, Arial, sans-serif;
             color: white;
         }
+
+        /* Main Layout */
+        .main-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 30px;
+            padding: 35px 30px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        /* Calendar */
+        .calendar {
+            width: 65%;
+            flex-shrink: 0;
+            padding: 22px;
+            background-color: white;
+            border-radius: 12px;
+            box-sizing: border-box;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calendar-header h2 {
+            font-size: 26px;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .calendar-header button {
+            background-color: rgb(124, 52, 213);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .calendar-header button:hover {
+            background-color: rgb(101, 35, 180);
+        }
+
+        /* Calendar Grid */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px 0;
+            font-size: 15px;
+        }
+
+        .day {
+            min-height: 110px;
+            padding: 10px;
+            background-color: rgb(235, 235, 235);
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            overflow-wrap: anywhere;
+        }
+
+        .today {
+            background-color: rgb(195, 159, 240);
+            font-weight: bold;
+        }
+
+        /* Avatar Area */
+        .avatar-container {
+            flex: 1;
+            min-width: 0;
+            min-height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+                padding: 25px 15px;
+                gap: 25px;
+            }
+
+            .calendar {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .avatar-container {
+                width: 100%;
+                min-height: 300px;
+            }
+
+            .calendar-header h2 {
+                font-size: 20px;
+            }
+
+            .calendar-header button {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .day {
+                min-height: 65px;
+                padding: 5px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
+
 <body>
+
+    <!-- Navigation Bar -->
     <div class="navbar">
-        <div class="logo">
-            UNCHUD
-        </div>
+        <div class="logo">UNCHUD</div>
         <a href="home.html">Home</a>
     </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Calendar -->
+        <div class="calendar">
+
+            <div class="calendar-header">
+                <button id="prevMonth">Previous</button>
+                <h2 id="monthYear"></h2>
+                <button id="nextMonth">Next</button>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid">
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
+            </div>
+
+        </div>
+
+        <!-- Avatar Area -->
+        <div class="avatar-container">
+            <!-- Future avatar goes here -->
+        </div>
+
+    </div>
+
+    <script>
+        const calendarGrid = document.getElementById("calendarGrid");
+        const monthYear = document.getElementById("monthYear");
+
+        let currentDate = new Date();
+        currentDate.setDate(1);
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            // Display current month and year
+            monthYear.textContent = currentDate.toLocaleString(
+                "default",
+                { month: "long", year: "numeric" }
+            );
+
+            // Clear old days but keep weekday headers
+            while (calendarGrid.children.length > 7) {
+                calendarGrid.lastChild.remove();
+            }
+
+            // First weekday of the month
+            const firstDay = new Date(year, month, 1).getDay();
+
+            // Number of days in the month
+            const daysInMonth = new Date(
+                year, month + 1, 0
+            ).getDate();
+
+            // Add empty cells before first day
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement("div");
+                calendarGrid.appendChild(emptyCell);
+            }
+
+            // Generate calendar days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement("div");
+
+                dayCell.classList.add("day");
+                dayCell.textContent = day;
+
+                // Store date for future assignments
+                const dateString =
+                    `${year}-${String(month + 1).padStart(2, "0")}` +
+                    `-${String(day).padStart(2, "0")}`;
+
+                dayCell.dataset.date = dateString;
+
+                // Highlight today's date
+                const today = new Date();
+
+                if (
+                    day === today.getDate() &&
+                    month === today.getMonth() &&
+                    year === today.getFullYear()
+                ) {
+                    dayCell.classList.add("today");
+                }
+
+                calendarGrid.appendChild(dayCell);
+            }
+        }
+
+        // Previous Month
+        document.getElementById("prevMonth").addEventListener(
+            "click",
+            () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            }
+        );
+
+        // Next Month
+        document.getElementById("nextMonth").addEventListener(
+            "click",
+            () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            }
+        );
+
+        // Display calendar on load
+        renderCalendar();
+
+    </script>
+
 </body>
 </html>
