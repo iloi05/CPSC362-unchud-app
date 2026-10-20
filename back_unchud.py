@@ -13,6 +13,8 @@ import time
 import json # for game aspect
 # pip install email-validator
 from email_validator import validate_email, EmailNotValidError
+import os
+from pathlib import Path
 
 
 
@@ -20,6 +22,12 @@ from email_validator import validate_email, EmailNotValidError
 app = FastAPI()
 
 
+
+#create folder for Unchud in users AppData Directory
+DATA_DIR = Path(os.getenv("LOCALAPPDATA", Path.home())) / "Unchud"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+DATA_FILE = DATA_DIR / "assignments.json"
 
 #this created the data model which fast api will reference for what an assignment is 
 #BaseModel basically helps by making sure an assignment follows the parameters for an assignment
@@ -45,6 +53,35 @@ class Assignment:
     def __init__(self):
         self.assignment = {}
         self.choin = 0
+        self.load_data()    #auto loads saved assignment data whenever Assignment object created
+
+
+    #json functions
+
+    def save_data(self):
+        data = {
+            "assignments": self.assignment,
+            "choin": self.choin
+        }
+
+        with open(DATA_FILE, "w", encoding="utf-8") as file:
+            json.dump(data, file, indent=4)
+
+
+    def load_data(self):
+        if not DATA_FILE.exists():
+            return
+
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as file:
+                data = json.load(file)
+
+            self.assignment = data.get("assignments", {})
+            self.choin = data.get("choin", 0)
+
+        except (OSError, json.JSONDecodeError) as error:
+            print(f"Error loading data: {error}")
+    
 
 
     # helper functions
@@ -96,17 +133,24 @@ class Assignment:
             self.assignment[class_name][due_date] = {}
 
         if due_time not in self.assignment[class_name][due_date]:
-            self.assignment[class_name][due_date][due_time] = {}
+            self.assignment[class_name][due_date][due_time] = []
 
-        if assignment_name not in self.assignment[class_name][due_date][due_time]:
-            # Had to change from string to list so we can remove in mark
-            assign = self.assignment[class_name][due_date][due_time] = []
-            assign.append(assignment_name)
-            return {"success": True, 
-                    "message": f"You added {assignment_name} to your assignments! Time to unchud"}
+            assignments = self.assignment[class_name][due_date][due_time]
+
+        if assignment_name not in assignments:
+            assignments.append(assignment_name)
+
+            self.save_data()
+
+            return {
+            "success": True,
+            "message": f"You added {assignment_name} to your assignments!"
+        }
         else:
-            return {"sucess": False, 
-                    "message": "Assignment already exists"}
+            return {
+            "success": False,
+            "message": "Assignment already exists."
+            }
 
 
 
@@ -148,6 +192,7 @@ class Assignment:
                 success += f" You've lost $5 for completing this assignment late. Your remaining balance is ${self.choin:.2f}."
                 if self.choin == 0:
                     success += f" Your balance is now at ${self.choin:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
+            self.save_data()
             return {"success": True, "message": success}
            
         
@@ -265,6 +310,9 @@ def mark_assignment(data: AssignmentData):
     result = tracker.mark_assignment(data.due_date, data.due_time, data.class_name, data.assignment_name)
     return result
 
+@app.get("/assignments")
+def get_assignments():
+    return tracker.assignment
 
 @app.post("/buy")
 def buy(data: GameData):

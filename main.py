@@ -24,7 +24,8 @@ while True:
         unchud.showAssignments()
     elif choice == 3:
         unchud.mark_assignment()
-        
     elif choice == 4:
+        unchud.setNotif()
+    elif choice == 5:
         print("Exiting Unchud. Goodbye!")
         break

@@ -121,6 +121,35 @@
             font-weight: bold;
         }
 
+        /* Assignment labels shown inside their due-date cells */
+        .calendar-assignment {
+            margin-top: 6px;
+            padding: 5px 6px;
+            border-left: 3px solid rgb(124, 52, 213);
+            border-radius: 4px;
+            background-color: rgb(225, 210, 246);
+            color: rgb(40, 30, 54);
+            font-size: 11px;
+            font-weight: normal;
+            line-height: 1.35;
+        }
+
+        .assignment-title {
+            display: block;
+            font-weight: bold;
+        }
+
+        .assignment-details {
+            display: block;
+            margin-top: 2px;
+        }
+
+        .calendar-status {
+            margin: 8px 0 0;
+            color: rgb(130, 30, 30);
+            font-size: 13px;
+        }
+
         /* Avatar Area */
         .avatar-container {
             flex: 1;
@@ -172,7 +201,7 @@
     <!-- Navigation Bar -->
     <div class="navbar">
         <div class="logo">UNCHUD</div>
-        <a href="home.html">Home</a>
+        <a href="/home">Home</a>
     </div>
 
     <!-- Main Content -->
@@ -186,6 +215,8 @@
                 <h2 id="monthYear"></h2>
                 <button id="nextMonth">Next</button>
             </div>
+
+            <p id="calendarStatus" class="calendar-status" role="status" aria-live="polite"></p>
 
             <div class="calendar-grid" id="calendarGrid">
                 <div class="weekday">Sun</div>
@@ -209,6 +240,49 @@
     <script>
         const calendarGrid = document.getElementById("calendarGrid");
         const monthYear = document.getElementById("monthYear");
+        const calendarStatus = document.getElementById("calendarStatus");
+
+        // Map each YYYY-MM-DD date to the assignments due on that date.
+        let assignmentsByDate = {};
+
+        // Fetch the saved data through FastAPI (NOT directly from the JSON file).
+        async function loadAssignments() {
+            try {
+                const response = await fetch("/assignments");
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const savedAssignments = await response.json();
+                const byDate = {};
+
+                // Backend format: { class_name: { due_date: { due_time: [names] } } }
+                for (const [className, dates] of Object.entries(savedAssignments)) {
+                    for (const [dueDate, times] of Object.entries(dates)) {
+                        for (const [dueTime, names] of Object.entries(times)) {
+                            if (!Array.isArray(names)) continue;
+                            if (!byDate[dueDate]) byDate[dueDate] = [];
+
+                            for (const name of names) {
+                                byDate[dueDate].push({
+                                    className,
+                                    name,
+                                    dueTime
+                                });
+                            }
+                        }
+                    }
+                }
+
+                assignmentsByDate = byDate;
+                calendarStatus.textContent = "";
+                renderCalendar();
+            } catch (error) {
+                console.error("Could not load assignments:", error);
+                calendarStatus.textContent =
+                    "Unable to load assignments. Make sure FastAPI is running and GET /assignments is available.";
+            }
+        }
 
         let currentDate = new Date();
         currentDate.setDate(1);
@@ -256,6 +330,24 @@
 
                 dayCell.dataset.date = dateString;
 
+                // Put each matching assignment inside its due-date cell.
+                for (const assignment of (assignmentsByDate[dateString] || [])) {
+                    const label = document.createElement("div");
+                    label.classList.add("calendar-assignment");
+
+                    const title = document.createElement("span");
+                    title.classList.add("assignment-title");
+                    title.textContent = assignment.name;
+
+                    const details = document.createElement("span");
+                    details.classList.add("assignment-details");
+                    details.textContent = `${assignment.className} · ${assignment.dueTime}`;
+
+                    label.appendChild(title);
+                    label.appendChild(details);
+                    dayCell.appendChild(label);
+                }
+
                 // Highlight today's date
                 const today = new Date();
 
@@ -289,8 +381,15 @@
             }
         );
 
-        // Display calendar on load
+        // Display the calendar immediately, then populate it from saved data.
         renderCalendar();
+        loadAssignments();
+
+        // Update assignments when the user returns to this page/tab.
+        window.addEventListener("focus", loadAssignments);
+
+        // An assignment form on this page can call loadAssignments()
+        // after a successful POST /add_assignment request.
 
     </script>
 
