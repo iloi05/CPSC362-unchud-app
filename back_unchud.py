@@ -20,7 +20,7 @@ from pathlib import Path
 
 #this creates the fast api application
 app = FastAPI()
-
+BASE_DIR = Path(__file__).parent
 
 
 #create folder for Unchud in users AppData Directory
@@ -212,23 +212,6 @@ class Assignment:
         return {"Success": True, "message": "Notification has been sent!"}
 
             
-
-    #def money_counter(self):
-    #    if self.moneyCounter == 0:
-    #        return {"success": False, "message": f"Your current balance is ${self.moneyCounter}. Start completing assignments to not be a chud!"}
-    #    else:
-    #        return {"success": True, "message": f"Your current balance is ${self.moneyCounter}. Great job not being a chud!"}
-    
-    
-    #def showAssignments(self):
-    #    for class_name, due_dates in self.assignment.items():
-    #        print(f"---{class_name}---")
-#
-    #        for due_date, due_times in due_dates.items():
-    #            print(f"---{due_date}---")
-    #            for due_time, assignment in due_times.items():
-    #                print(f"{due_time} - {assignment}")
-
 class Game(Assignment):
     def __init__(self, tracker):
         super().__init__()
@@ -321,4 +304,8 @@ def buy(data: GameData):
 
 @app.get("/home")
 def home():
-    return FileResponse("home.html")
+    return FileResponse(BASE_DIR / "Front_end_files" / "home.html")
+
+@app.get("/front-unchud.js")
+def front_js():
+    return FileResponse(BASE_DIR / "Front_end_files" / "front-unchud.js")
