@@ -193,6 +193,31 @@
                 font-size: 13px;
             }
         }
+
+        .avatar-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        #avatarCanvas {
+            image-rendering: pixelated;
+            background-color: rgb(40, 30, 54);
+            border-radius: 12px;
+            max-width: 100%; 
+        }
+
+        .avatar-controls {
+            display: grid;
+            gap: 8px;
+            color: white;
+        }
+        .avatar-controls label {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
     </style>
 </head>
 
@@ -232,13 +257,18 @@
 
         <!-- Avatar Area -->
         <div class="avatar-container">
-            <!-- Future avatar goes here -->
+            <div class ="avatar-panel">
+                <canvas id="avatarCanvas" width="320" height="320"></canvas>
+                <label class="avatar-controls">Body
+                    <select id="bodySelect"></select>
+                </label>
+            </div>
         </div>
 
     </div>
 
 
     <script src="/front-unchud.js"></script>
-
+    <script src="/avatar.js"></script>
 </body>
 </html>

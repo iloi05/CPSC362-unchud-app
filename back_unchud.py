@@ -3,6 +3,7 @@
 from pydantic import BaseModel
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from datetime import datetime, date
 from pydantic import BaseModel
 from win11toast import toast
@@ -309,3 +310,5 @@ def home():
 @app.get("/front-unchud.js")
 def front_js():
     return FileResponse(BASE_DIR / "Front_end_files" / "front-unchud.js")
+
+app.mount("/", StaticFiles(directory=BASE_DIR / "Front_end_files"), name="frontend")
