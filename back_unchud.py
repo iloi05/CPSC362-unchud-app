@@ -117,7 +117,7 @@ class Assignment:
 
         if not self.check_date(due_date):
             return {"success": False, 
-                    "message: ": "Invalid date format. Please use YYYY-MM-DD."}
+                    "message": "Invalid date format. Please use YYYY-MM-DD."}
         
         
 
@@ -136,7 +136,7 @@ class Assignment:
         if due_time not in self.assignment[class_name][due_date]:
             self.assignment[class_name][due_date][due_time] = []
 
-            assignments = self.assignment[class_name][due_date][due_time]
+        assignments = self.assignment[class_name][due_date][due_time]
 
         if assignment_name not in assignments:
             assignments.append(assignment_name)
@@ -161,7 +161,7 @@ class Assignment:
 
         if not self.check_date(due_date):
                     return {"success": False, 
-                            "message: ": "Invalid date format. Please use YYYY-MM-DD."}  
+                            "message": "Invalid date format. Please use YYYY-MM-DD."}  
         
         if not self.check_time(due_time):
                     return {"success": False, 
