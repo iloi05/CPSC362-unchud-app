@@ -123,8 +123,9 @@
 
         /* Assignment labels shown inside their due-date cells */
         .calendar-assignment {
+            position: relative;
             margin-top: 6px;
-            padding: 5px 6px;
+            padding: 5px 22px 5px 6px;
             border-left: 3px solid rgb(124, 52, 213);
             border-radius: 4px;
             background-color: rgb(225, 210, 246);
@@ -142,6 +143,27 @@
         .assignment-details {
             display: block;
             margin-top: 2px;
+        }
+
+        /* Small check button to mark an assignment complete from the calendar */
+        .mark-done {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 17px;
+            height: 17px;
+            padding: 0;
+            border: none;
+            border-radius: 3px;
+            background-color: rgb(124, 52, 213);
+            color: white;
+            font-size: 11px;
+            line-height: 17px;
+            cursor: pointer;
+        }
+
+        .mark-done:hover {
+            background-color: rgb(30, 110, 50);
         }
 
         .calendar-status {

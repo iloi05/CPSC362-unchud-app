@@ -43,6 +43,7 @@
                                 byDate[dueDate].push({
                                     className,
                                     name,
+                                    dueDate,
                                     dueTime
                                 });
                             }
@@ -121,8 +122,17 @@
                     details.classList.add("assignment-details");
                     details.textContent = `${assignment.className} · ${assignment.dueTime}`;
 
+                    const doneButton = document.createElement("button");
+                    doneButton.type = "button";
+                    doneButton.classList.add("mark-done");
+                    doneButton.textContent = "✓";
+                    doneButton.title = "Mark complete";
+                    doneButton.setAttribute("aria-label", `Mark ${assignment.name} complete`);
+                    doneButton.addEventListener("click", () => markAssignment(assignment));
+
                     label.appendChild(title);
                     label.appendChild(details);
+                    label.appendChild(doneButton);
                     dayCell.appendChild(label);
                 }
 
@@ -158,6 +168,35 @@
                 renderCalendar();
             }
         );
+
+        // ---------- Mark assignment complete ----------
+        // Sends the exact stored class/date/time/name so the backend lookup always matches.
+        async function markAssignment(assignment) {
+            if (!confirm(`Mark "${assignment.name}" for ${assignment.className} complete?`)) return;
+
+            try {
+                const response = await fetch("/mark_assignment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        due_date: assignment.dueDate,
+                        due_time: assignment.dueTime,
+                        class_name: assignment.className,
+                        assignment_name: assignment.name
+                    })
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const result = await response.json();
+                await loadAssignments();
+                setStatus(result.message, result.success);
+            } catch (error) {
+                console.error("Could not mark assignment:", error);
+                // Reload anyway: the backend may have changed its data before failing.
+                await loadAssignments();
+                setStatus("Server error marking assignment.");
+            }
+        }
 
         // ---------- Add Assignment popup ----------
         const addDialog = document.getElementById("addDialog");
