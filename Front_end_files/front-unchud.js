@@ -10,9 +10,12 @@
         let classNames = [];
 
         // Show a message under the calendar header (green for success, red for errors).
+        // The message is mirrored inside the Assignments popup while it is open.
         function setStatus(message, isSuccess = false) {
-            calendarStatus.textContent = message;
-            calendarStatus.classList.toggle("success", isSuccess);
+            for (const el of [calendarStatus, document.getElementById("listMessage")]) {
+                el.textContent = message;
+                el.classList.toggle("success", isSuccess);
+            }
         }
 
         // Local date as YYYY-MM-DD (toISOString() would use UTC and can be off by a day).
@@ -55,6 +58,7 @@
                 classNames = Object.keys(savedAssignments).sort();
                 setStatus("");
                 renderCalendar();
+                if (listDialog.open) renderAssignmentList();
             } catch (error) {
                 console.error("Could not load assignments:", error);
                 setStatus(
@@ -197,6 +201,72 @@
                 setStatus("Server error marking assignment.");
             }
         }
+
+        // ---------- Current Assignments popup ----------
+        const listDialog = document.getElementById("listDialog");
+        const assignmentList = document.getElementById("assignmentList");
+
+        // "02:30 PM" -> minutes since midnight, for sorting and past-due checks.
+        function timeToMinutes(dueTime) {
+            const match = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(dueTime.trim());
+            if (!match) return 0;
+            const hour = Number(match[1]) % 12 + (match[3].toUpperCase() === "PM" ? 12 : 0);
+            return hour * 60 + Number(match[2]);
+        }
+
+        function dueDateTime(assignment) {
+            const [y, m, d] = assignment.dueDate.split("-").map(Number);
+            const minutes = timeToMinutes(assignment.dueTime);
+            return new Date(y, m - 1, d, Math.floor(minutes / 60), minutes % 60);
+        }
+
+        function renderAssignmentList() {
+            const pending = Object.values(assignmentsByDate)
+                .flat()
+                .sort((a, b) => dueDateTime(a) - dueDateTime(b));
+
+            assignmentList.replaceChildren();
+
+            if (pending.length === 0) {
+                const empty = document.createElement("li");
+                empty.classList.add("empty");
+                empty.textContent = "No pending assignments 🎉";
+                assignmentList.appendChild(empty);
+                return;
+            }
+
+            const now = new Date();
+            for (const assignment of pending) {
+                const item = document.createElement("li");
+                if (dueDateTime(assignment) < now) item.classList.add("past-due");
+
+                const info = document.createElement("div");
+                const title = document.createElement("span");
+                title.classList.add("assignment-title");
+                title.textContent = assignment.name;
+                const details = document.createElement("span");
+                details.classList.add("assignment-details");
+                details.textContent =
+                    `${assignment.className} · ${assignment.dueDate} · ${assignment.dueTime}`;
+                info.appendChild(title);
+                info.appendChild(details);
+
+                const doneButton = document.createElement("button");
+                doneButton.type = "button";
+                doneButton.textContent = "Mark complete";
+                doneButton.addEventListener("click", () => markAssignment(assignment));
+
+                item.appendChild(info);
+                item.appendChild(doneButton);
+                assignmentList.appendChild(item);
+            }
+        }
+
+        document.getElementById("openListDialog").addEventListener("click", () => {
+            renderAssignmentList();
+            listDialog.showModal();
+        });
+        document.getElementById("closeList").addEventListener("click", () => listDialog.close());
 
         // ---------- Add Assignment popup ----------
         const addDialog = document.getElementById("addDialog");

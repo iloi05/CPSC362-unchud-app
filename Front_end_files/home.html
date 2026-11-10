@@ -274,7 +274,8 @@
             background-color: rgb(175, 175, 175);
         }
 
-        .calendar-status.success {
+        .calendar-status.success,
+        .dialog-message.success {
             color: rgb(30, 110, 50);
         }
 
@@ -337,6 +338,54 @@
             justify-content: flex-end;
             gap: 10px;
         }
+
+        /* Pending assignments list */
+        .assignment-list {
+            list-style: none;
+            margin: 0 0 15px;
+            padding: 0;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .assignment-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 6px;
+            border-left: 3px solid rgb(124, 52, 213);
+            border-radius: 4px;
+            background-color: rgb(225, 210, 246);
+            font-size: 13px;
+        }
+
+        .assignment-list li.past-due {
+            border-left-color: rgb(170, 40, 40);
+            background-color: rgb(246, 215, 215);
+        }
+
+        .assignment-list li.empty {
+            justify-content: center;
+            border-left: none;
+            background-color: rgb(235, 235, 235);
+        }
+
+        .assignment-list button {
+            flex-shrink: 0;
+            background-color: rgb(124, 52, 213);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .assignment-list button:hover {
+            background-color: rgb(30, 110, 50);
+        }
     </style>
 </head>
 
@@ -356,6 +405,7 @@
 
             <div class="calendar-actions">
                 <button id="openAddDialog" type="button">+ Add Assignment</button>
+                <button id="openListDialog" type="button">Assignments</button>
             </div>
 
             <div class="calendar-header">
@@ -430,6 +480,16 @@
                 <button type="submit">Add</button>
             </div>
         </form>
+    </dialog>
+
+    <!-- Pending assignments popup -->
+    <dialog id="listDialog">
+        <h3>Current Assignments</h3>
+        <ul id="assignmentList" class="assignment-list"></ul>
+        <p id="listMessage" class="dialog-message" role="status" aria-live="polite"></p>
+        <div class="dialog-buttons">
+            <button type="button" class="secondary" id="closeList">Close</button>
+        </div>
     </dialog>
 
 
