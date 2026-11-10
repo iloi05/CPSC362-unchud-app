@@ -307,6 +307,11 @@
             font-weight: bold;
         }
 
+        /* display: flex above would otherwise override the hidden attribute */
+        .form-field[hidden] {
+            display: none;
+        }
+
         .form-field input,
         .form-field select {
             padding: 8px;
