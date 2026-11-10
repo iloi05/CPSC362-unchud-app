@@ -218,6 +218,103 @@
             justify-content: space-between;
             gap: 10px;
         }
+
+        /* Add / view assignment buttons above the month header */
+        .calendar-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .calendar-actions button,
+        .dialog-buttons button {
+            background-color: rgb(124, 52, 213);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .calendar-actions button:hover,
+        .dialog-buttons button:hover {
+            background-color: rgb(101, 35, 180);
+        }
+
+        .dialog-buttons button.secondary {
+            background-color: rgb(200, 200, 200);
+            color: rgb(40, 30, 54);
+        }
+
+        .dialog-buttons button.secondary:hover {
+            background-color: rgb(175, 175, 175);
+        }
+
+        .calendar-status.success {
+            color: rgb(30, 110, 50);
+        }
+
+        /* Popup dialogs */
+        dialog {
+            width: min(420px, calc(100vw - 32px));
+            box-sizing: border-box;
+            border: none;
+            border-radius: 12px;
+            padding: 22px;
+            color: rgb(40, 30, 54);
+        }
+
+        dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        dialog h3 {
+            margin: 0 0 15px;
+            color: rgb(124, 52, 213);
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-field input,
+        .form-field select {
+            padding: 8px;
+            border: 1px solid rgb(190, 190, 190);
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .time-selects {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .time-selects select {
+            flex: 1;
+        }
+
+        .dialog-message {
+            min-height: 18px;
+            margin: 0 0 10px;
+            color: rgb(130, 30, 30);
+            font-size: 13px;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
     </style>
 </head>
 
@@ -234,6 +331,10 @@
 
         <!-- Calendar -->
         <div class="calendar">
+
+            <div class="calendar-actions">
+                <button id="openAddDialog" type="button">+ Add Assignment</button>
+            </div>
 
             <div class="calendar-header">
                 <button id="prevMonth">Previous</button>
@@ -266,6 +367,48 @@
         </div>
 
     </div>
+
+    <!-- Add Assignment popup -->
+    <dialog id="addDialog">
+        <form id="addForm">
+            <h3>Add Assignment</h3>
+
+            <label class="form-field">Class
+                <select id="classSelect"></select>
+            </label>
+
+            <label class="form-field" id="newClassField" hidden>New class name
+                <input id="newClassInput" type="text" maxlength="60" autocomplete="off">
+            </label>
+
+            <label class="form-field">Assignment name
+                <input id="assignmentNameInput" type="text" maxlength="100" autocomplete="off" required>
+            </label>
+
+            <label class="form-field">Due date
+                <input id="dueDateInput" type="date" required>
+            </label>
+
+            <div class="form-field">Due time
+                <div class="time-selects">
+                    <select id="hourSelect" aria-label="Hour"></select>
+                    :
+                    <select id="minuteSelect" aria-label="Minute"></select>
+                    <select id="ampmSelect" aria-label="AM or PM">
+                        <option>AM</option>
+                        <option>PM</option>
+                    </select>
+                </div>
+            </div>
+
+            <p id="addMessage" class="dialog-message" role="status" aria-live="polite"></p>
+
+            <div class="dialog-buttons">
+                <button type="button" class="secondary" id="cancelAdd">Cancel</button>
+                <button type="submit">Add</button>
+            </div>
+        </form>
+    </dialog>
 
 
     <script src="/front-unchud.js"></script>

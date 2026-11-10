@@ -6,6 +6,21 @@
         // Map each YYYY-MM-DD date to the assignments due on that date.
         let assignmentsByDate = {};
 
+        // Class names the user has already saved (used by the Add popup's dropdown).
+        let classNames = [];
+
+        // Show a message under the calendar header (green for success, red for errors).
+        function setStatus(message, isSuccess = false) {
+            calendarStatus.textContent = message;
+            calendarStatus.classList.toggle("success", isSuccess);
+        }
+
+        // Local date as YYYY-MM-DD (toISOString() would use UTC and can be off by a day).
+        function toDateString(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}` +
+                `-${String(date.getDate()).padStart(2, "0")}`;
+        }
+
         // Fetch the saved data through FastAPI (NOT directly from the JSON file).
         async function loadAssignments() {
             try {
@@ -36,12 +51,14 @@
                 }
 
                 assignmentsByDate = byDate;
-                calendarStatus.textContent = "";
+                classNames = Object.keys(savedAssignments).sort();
+                setStatus("");
                 renderCalendar();
             } catch (error) {
                 console.error("Could not load assignments:", error);
-                calendarStatus.textContent =
-                    "Unable to load assignments. Make sure FastAPI is running and GET /assignments is available.";
+                setStatus(
+                    "Unable to load assignments. Make sure FastAPI is running and GET /assignments is available."
+                );
             }
         }
 
@@ -142,12 +159,119 @@
             }
         );
 
+        // ---------- Add Assignment popup ----------
+        const addDialog = document.getElementById("addDialog");
+        const addForm = document.getElementById("addForm");
+        const classSelect = document.getElementById("classSelect");
+        const newClassField = document.getElementById("newClassField");
+        const newClassInput = document.getElementById("newClassInput");
+        const assignmentNameInput = document.getElementById("assignmentNameInput");
+        const dueDateInput = document.getElementById("dueDateInput");
+        const hourSelect = document.getElementById("hourSelect");
+        const minuteSelect = document.getElementById("minuteSelect");
+        const ampmSelect = document.getElementById("ampmSelect");
+        const addMessage = document.getElementById("addMessage");
+
+        const NEW_CLASS = "__new__";
+
+        function addOption(select, value, text = value) {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = text;
+            select.appendChild(option);
+        }
+
+        // Hour 1-12 and minute 00-55 (5-minute steps) dropdowns.
+        for (let h = 1; h <= 12; h++) addOption(hourSelect, String(h));
+        for (let m = 0; m < 60; m += 5) addOption(minuteSelect, String(m).padStart(2, "0"));
+
+        // Backend expects "HH:MM AM/PM" with a zero-padded hour, e.g. "02:30 PM".
+        function formatTime(hour, minute, ampm) {
+            return `${String(hour).padStart(2, "0")}:${minute} ${ampm}`;
+        }
+
+        function updateNewClassField() {
+            const isNew = classSelect.value === NEW_CLASS;
+            newClassField.hidden = !isNew;
+            if (isNew) newClassInput.focus();
+        }
+
+        function openAddDialog() {
+            // Rebuild the class list from the classes saved so far.
+            classSelect.replaceChildren();
+            for (const name of classNames) addOption(classSelect, name);
+            addOption(classSelect, NEW_CLASS, "+ Add new class");
+
+            addForm.reset();
+            newClassInput.value = "";
+            dueDateInput.value = toDateString(new Date());
+            hourSelect.value = "11";
+            minuteSelect.value = "55";
+            ampmSelect.value = "PM";
+            addMessage.textContent = "";
+
+            addDialog.showModal();
+            updateNewClassField();
+            if (classSelect.value !== NEW_CLASS) assignmentNameInput.focus();
+        }
+
+        async function submitAddForm(event) {
+            event.preventDefault();
+
+            const className = classSelect.value === NEW_CLASS
+                ? newClassInput.value.trim()
+                : classSelect.value;
+            const assignmentName = assignmentNameInput.value.trim();
+
+            if (!className) {
+                addMessage.textContent = "Please enter a class name.";
+                return;
+            }
+            if (!assignmentName) {
+                addMessage.textContent = "Please enter an assignment name.";
+                return;
+            }
+            if (!dueDateInput.value) {
+                addMessage.textContent = "Please pick a due date.";
+                return;
+            }
+
+            try {
+                const response = await fetch("/add_assignment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        due_date: dueDateInput.value,
+                        due_time: formatTime(hourSelect.value, minuteSelect.value, ampmSelect.value),
+                        class_name: className,
+                        assignment_name: assignmentName
+                    })
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const result = await response.json();
+                if (!result.success) {
+                    addMessage.textContent = result.message;
+                    return;
+                }
+
+                addDialog.close();
+                await loadAssignments();
+                setStatus(result.message, true);
+            } catch (error) {
+                console.error("Could not add assignment:", error);
+                addMessage.textContent = "Server error adding assignment. Is FastAPI running?";
+            }
+        }
+
+        document.getElementById("openAddDialog").addEventListener("click", openAddDialog);
+        document.getElementById("cancelAdd").addEventListener("click", () => addDialog.close());
+        classSelect.addEventListener("change", updateNewClassField);
+        addForm.addEventListener("submit", submitAddForm);
+
         // Display the calendar immediately, then populate it from saved data.
         renderCalendar();
         loadAssignments();
 
         // Update assignments when the user returns to this page/tab.
         window.addEventListener("focus", loadAssignments);
-
-        // An assignment form on this page can call loadAssignments()
-        // after a successful POST /add_assignment request.
