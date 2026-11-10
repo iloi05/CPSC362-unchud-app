@@ -327,8 +327,9 @@
             gap: 6px;
         }
 
-        .time-selects select {
-            flex: 1;
+        .time-selects input {
+            width: 3.5em;
+            text-align: center;
         }
 
         .dialog-message {
@@ -468,9 +469,11 @@
 
             <div class="form-field">Due time
                 <div class="time-selects">
-                    <select id="hourSelect" aria-label="Hour"></select>
+                    <input id="hourInput" type="text" inputmode="numeric" maxlength="2"
+                        placeholder="HH" aria-label="Hour" autocomplete="off">
                     :
-                    <select id="minuteSelect" aria-label="Minute"></select>
+                    <input id="minuteInput" type="text" inputmode="numeric" maxlength="2"
+                        placeholder="MM" aria-label="Minute" autocomplete="off">
                     <select id="ampmSelect" aria-label="AM or PM">
                         <option>AM</option>
                         <option>PM</option>

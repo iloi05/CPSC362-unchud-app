@@ -276,8 +276,8 @@
         const newClassInput = document.getElementById("newClassInput");
         const assignmentNameInput = document.getElementById("assignmentNameInput");
         const dueDateInput = document.getElementById("dueDateInput");
-        const hourSelect = document.getElementById("hourSelect");
-        const minuteSelect = document.getElementById("minuteSelect");
+        const hourInput = document.getElementById("hourInput");
+        const minuteInput = document.getElementById("minuteInput");
         const ampmSelect = document.getElementById("ampmSelect");
         const addMessage = document.getElementById("addMessage");
 
@@ -290,13 +290,24 @@
             select.appendChild(option);
         }
 
-        // Hour 1-12 and minute 00-55 (5-minute steps) dropdowns.
-        for (let h = 1; h <= 12; h++) addOption(hourSelect, String(h));
-        for (let m = 0; m < 60; m += 5) addOption(minuteSelect, String(m).padStart(2, "0"));
+        // Hour/minute boxes accept digits only.
+        for (const input of [hourInput, minuteInput]) {
+            input.addEventListener("input", () => {
+                input.value = input.value.replace(/\D/g, "");
+            });
+        }
 
-        // Backend expects "HH:MM AM/PM" with a zero-padded hour, e.g. "02:30 PM".
+        // Jump to the minute box once two hour digits are typed.
+        hourInput.addEventListener("input", () => {
+            if (hourInput.value.length === 2) {
+                minuteInput.focus();
+                minuteInput.select();
+            }
+        });
+
+        // Backend expects "HH:MM AM/PM", zero-padded, e.g. "02:05 PM".
         function formatTime(hour, minute, ampm) {
-            return `${String(hour).padStart(2, "0")}:${minute} ${ampm}`;
+            return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")} ${ampm}`;
         }
 
         function updateNewClassField() {
@@ -314,8 +325,8 @@
             addForm.reset();
             newClassInput.value = "";
             dueDateInput.value = toDateString(new Date());
-            hourSelect.value = "11";
-            minuteSelect.value = "55";
+            hourInput.value = "11";
+            minuteInput.value = "59";
             ampmSelect.value = "PM";
             addMessage.textContent = "";
 
@@ -345,13 +356,26 @@
                 return;
             }
 
+            const hour = Number(hourInput.value);
+            const minute = Number(minuteInput.value);
+            if (hourInput.value === "" || hour < 1 || hour > 12) {
+                addMessage.textContent = "Hour must be between 1 and 12.";
+                hourInput.focus();
+                return;
+            }
+            if (minuteInput.value === "" || minute > 59) {
+                addMessage.textContent = "Minute must be between 00 and 59.";
+                minuteInput.focus();
+                return;
+            }
+
             try {
                 const response = await fetch("/add_assignment", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         due_date: dueDateInput.value,
-                        due_time: formatTime(hourSelect.value, minuteSelect.value, ampmSelect.value),
+                        due_time: formatTime(hour, minute, ampmSelect.value),
                         class_name: className,
                         assignment_name: assignmentName
                     })
