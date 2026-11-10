@@ -216,13 +216,37 @@ class Assignment:
                     for name in names:
                         yield class_name, due_date, due_time, name
 
+    def notif_weight(self, due_date, due_time):
+        # how likely an assignment is to be picked for a notification (higher = more likely)
+        PAST_DUE_WEIGHT = 1
+        DUE_WITHIN_DAY_WEIGHT = 6
+        DUE_WITHIN_3_DAYS_WEIGHT = 3
+        LATER_WEIGHT = 1
+
+        try:
+            due = datetime.strptime(f"{due_date} {due_time}", "%Y-%m-%d %I:%M %p")
+        except ValueError:
+            # unreadable date/time: still pickable, never crashes the scheduler
+            return LATER_WEIGHT
+
+        hours_left = (due - datetime.now()).total_seconds() / 3600
+        if hours_left < 0:
+            return PAST_DUE_WEIGHT
+        if hours_left <= 24:
+            return DUE_WITHIN_DAY_WEIGHT
+        if hours_left <= 72:
+            return DUE_WITHIN_3_DAYS_WEIGHT
+        return LATER_WEIGHT
+
     def random_notif(self):
         # pick from a flat list of real assignments so empty classes/dates/times are never chosen
         pending = list(self.all_assignments())
         if not pending:
             return {"success": True, "message": "You have no assignments to be notified about :)."}
 
-        class_name, due_date, due_time, assignment_name = random.choice(pending)
+        # still random, but assignments due soon are more likely to be picked
+        weights = [self.notif_weight(d, t) for _, d, t, _ in pending]
+        class_name, due_date, due_time, assignment_name = random.choices(pending, weights=weights)[0]
 
         toast("Heads up Chud!", f"{assignment_name} for {class_name} is due {due_date} at {due_time}!")
 
