@@ -290,7 +290,11 @@ schedule.every(10).seconds.do(tracker.random_notif)
 #wraps the schedule execution for seperate thread
 def run_scheduler():
     while True:
-        schedule.run_pending()
+        # catch errors so one failed notification doesn't kill the thread for good
+        try:
+            schedule.run_pending()
+        except Exception as e:
+            print(f"Scheduler error: {e}")
         time.sleep(1)
 
 #creates seperate thread so our program doesn't get stuck in infinite loop just giving notifications
