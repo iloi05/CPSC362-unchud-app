@@ -4,3 +4,5 @@ myenv/
 wvenv/
 toast/
 venv/
+__pycache__/
+*.pyc
