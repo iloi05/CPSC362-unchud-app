@@ -199,18 +199,25 @@ class Assignment:
         
 
 
+    def all_assignments(self):
+        # yields (class_name, due_date, due_time, assignment_name) for every pending assignment
+        for class_name, dates in self.assignment.items():
+            for due_date, times in dates.items():
+                for due_time, names in times.items():
+                    for name in names:
+                        yield class_name, due_date, due_time, name
+
     def random_notif(self):
-        if not self.assignment:
-            return {"success": True, "message": f"You have no assignments to be notified about :)."}
-        
-        class_name = random.choice(list(self.assignment.keys()))
-        due_date = random.choice(list(self.assignment[class_name].keys()))
-        due_time = random.choice(list(self.assignment[class_name][due_date].keys()))
-        assignment_name = random.choice(list(self.assignment[class_name][due_date][due_time]))
+        # pick from a flat list of real assignments so empty classes/dates/times are never chosen
+        pending = list(self.all_assignments())
+        if not pending:
+            return {"success": True, "message": "You have no assignments to be notified about :)."}
+
+        class_name, due_date, due_time, assignment_name = random.choice(pending)
 
         toast("Heads up Chud!", f"{assignment_name} for {class_name} is due {due_date} at {due_time}!")
 
-        return {"Success": True, "message": "Notification has been sent!"}
+        return {"success": True, "message": "Notification has been sent!"}
 
             
 class Game(Assignment):
