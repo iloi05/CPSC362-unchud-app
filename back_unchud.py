@@ -193,6 +193,15 @@ class Assignment:
                 success += f" You've lost $5 for completing this assignment late. Your remaining balance is ${self.choin:.2f}."
                 if self.choin == 0:
                     success += f" Your balance is now at ${self.choin:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
+
+            # clean up any time/date/class that no longer holds assignments
+            if not self.assignment[class_name][due_date][due_time]:
+                del self.assignment[class_name][due_date][due_time]
+                if not self.assignment[class_name][due_date]:
+                    del self.assignment[class_name][due_date]
+                    if not self.assignment[class_name]:
+                        del self.assignment[class_name]
+
             self.save_data()
             return {"success": True, "message": success}
            
