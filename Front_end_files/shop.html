@@ -42,6 +42,71 @@
             font-family: Copperplate, Arial, sans-serif;
             color: white;
         }
+
+        .shop-layout {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 80px;
+            padding: 40px 60px;
+            box-sizing: border-box;
+        }
+
+        .catalog {
+            border-radius: 12px;
+            position: relative;
+            left: 100px;
+            width: 600px;
+            padding: 20px 35px 20px 60px;
+            max-width: 100%;
+            background-color: rgb(44, 44, 44);
+            box-sizing: border-box;
+            color: white;
+        }
+        
+        .shop-header { color: white; margin: 10 0 4px; }
+        #shopMessage { color: white; min-height: 18px; margin: 0 0 14px; font-size: 14px; }
+        
+        .catalog-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+        }
+        .item-name {
+            font-size: 18px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .rank-buttons { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+        .rank-buttons button {
+            background-color: rgb(124, 52, 213);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .rank-buttons button:hover { background-color: rgb(101, 35, 180); }
+
+        .avatar-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        #avatarCanvas {
+            background-color: rgb(40, 30, 54);
+            border-radius: 12px;
+            max-width: 100%;
+        }
+
+        @media (max-width: 900px) {
+            .shop-layout { flex-direction: column; align-items: center; padding: 40px 60px 40px 250px; }
+            .catalog { width: 100% }
+        }
     </style>    
 </head>
 <body>
@@ -52,10 +117,15 @@
             <a href="/shop">Shop</a>
         </div>    
     </div>
-    <div id="shop">
-        <h2 style="color:white; padding:0;">Shop - <span id="balance">0</span> choins</h2>
-        <p id="shopMessage" style="color:white; padding:0 20px;"></p>
-        <div id="items" style="padding:0 20px; color:white;"></div>
+    <div class="shop-layout">
+        <div class="catalog">
+            <h2 class="shop-header">Shop - <span id="balance">0</span> choins</h2>
+            <p id="shopMessage"></p>
+            <div id="items"></div>
+        </div>
+        <div class="avatar-area">
+            <canvas id="avatarCanvas" width="500" height="500"></canvas>
+        </div>
     </div>
     <script>
         const itemsDiv = document.getElementById("items");
@@ -75,13 +145,23 @@
 
             for (const [item, ranks] of Object.entries(catalog)) {
                 const row = document.createElement("div");
-                row.textContent = item + ": ";
+                row.classList.add("catalog-row");
+
+                const name = document.createElement("span");
+                name.classList.add("item-name");
+                name.textContent = item;
+
+                const buttons = document.createElement("div");
+                buttons.classList.add("rank-buttons");
                 for (const [rank, price] of Object.entries(ranks)) {
                     const btn = document.createElement("button");
                     btn.textContent = `${rank} (${price})`;
                     btn.addEventListener("click", () => buy(item, rank));
-                    row.appendChild(btn);
+                    buttons.appendChild(btn);
                 }
+
+                row.appendChild(name);
+                row.appendChild(buttons);
                 itemsDiv.appendChild(row);
             }
         }
