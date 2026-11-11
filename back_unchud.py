@@ -4,8 +4,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from datetime import datetime, date
-from pydantic import BaseModel
+from datetime import datetime, timedelta
 from win11toast import toast
 import random
 import schedule
@@ -94,7 +93,7 @@ class Assignment:
             return False
     def check_time(self, time):
         try:
-            datetime.strptime(time, "%H:%M %p")
+            datetime.strptime(time, "%I:%M %p")
             return True
         except ValueError:
             return False
@@ -167,43 +166,47 @@ class Assignment:
                     return {"success": False, 
                         "message": "Invalid time format. Please use HH:MM AM/PM."}
         
-
-        
-
-        if assignment_name not in self.assignment[class_name][due_date][due_time]:
+        assignments = self.assignment[class_name].get(due_date, {}).get(due_time, [])
+        if assignment_name not in assignments:
             return {"success": False, "message": "Assignment not found."}
+
+        now = datetime.now().replace(second=0, microsecond=0)
+        due = datetime.strptime(f"{due_date} {due_time}", "%Y-%m-%d %I:%M %p")
+        late_by = now - due
+
+        success = (f"Congrats! You completed {assignment_name} for {class_name}! "
+                   f"You get money for not being a chud! :D")
+
+        if now < due:
+            change = 50
+            success += f" You've gained ${change:.2f} for completing this assignment early!"
+        elif now == due:
+            change = 25
+            success += f" You've gained ${change:.2f} for completing this assignment on time!"
+        elif late_by <= timedelta(minutes=30):
+            change = -0.10
+            success += (f" You've lost $0.10 for completing this assignment a few "
+                        f"minutes late.")
         else:
-            success = f"Congrats! You completed {assignment_name} for {class_name}! You get money for not being a chud! :D"
-            self.assignment[class_name][due_date][due_time].remove(assignment_name)
-            now = datetime.now()
-            due = datetime.strptime(due_date + " " + due_time, "%Y-%m-%d %I:%M %p")
-            today = date.today()
-            curr_time = now.time()
-            if now < due:
-                self.choin += 50
-                success += f" You've gained ${self.choin:.2f} for completing this assignment early!"
-            elif now == due:
-                self.choin += 25
-                success += f" You've gained ${self.choin:.2f} for completing this assignment on time!"
-            elif today == due_date and curr_time > due_time:
-                self.choin -= 0.10
-                success += f" You've lost $0.10 for completing this assignment a few minutes late. Your remaining balance is ${self.choin:.2f}."
-            elif today > due_date:
-                self.choin -= 5
-                success += f" You've lost $5 for completing this assignment late. Your remaining balance is ${self.choin:.2f}."
-                if self.choin == 0:
-                    success += f" Your balance is now at ${self.choin:.2f}. Better start completing assignments on time so you don't go into debt and become a chud! :)"
+            change = -5
+            success += f" You've lost $5.00 for completing this assignment late."
 
-            # clean up any time/date/class that no longer holds assignments
-            if not self.assignment[class_name][due_date][due_time]:
-                del self.assignment[class_name][due_date][due_time]
-                if not self.assignment[class_name][due_date]:
-                    del self.assignment[class_name][due_date]
-                    if not self.assignment[class_name]:
-                        del self.assignment[class_name]
+        self.choin = round(self.choin + change, 2)
+        success += f" Your balance is now ${self.choin:.2f}."
 
-            self.save_data()
-            return {"success": True, "message": success}
+        if self.choin <= 0 and change < 0:
+            success += (" Better start completing assignemnts on time so you "
+                        "don't go into debt and become a chud! :)")
+
+        self.assignment[class_name][due_date][due_time].remove(assignment_name)
+
+        if not self.assignment[class_name][due_date][due_time]:
+            del self.assignment[class_name][due_date][due_time]
+            if not self.assignment[class_name][due_date]:
+                del self.assignment[class_name][due_date]
+
+        self.save_data()
+        return {"success": True, "message": success}
            
         
 
