@@ -296,13 +296,15 @@ class Game(Assignment):
     def buy(self, item, rank):
         item = item.lower()
         rank = rank.upper()
+        if item not in self.catalog or rank not in self.catalog[item]:
+            return {"success": False, "message": "That item doesn't exist."}
         price = self.catalog[item][rank]
         if self.tracker.choin >= price:
-            self.tracker.choin -= price
+            self.tracker.choin = round(self.tracker.choin - price, 2)
             self.p_inventory.append((item, rank))
-            return{"success": True, "message": f"Yippeeee :D! You successfully purchased an {rank} {item} for your avatar!"}
-        else:
-            return{"success": False, "message": f"Sorry... :( you don't have enough choins to buy this item. Complete more assginments to be able to purchase items.)"}
+            self.tracker.save_data()
+            return {"success": True, "message": f"Yippeeee :D! You purchased an {rank} {item} for your avatar!"}
+        return {"success": False, "message": "Sorry... :( you don't have enough choins. Complete more assignments to buy items."}
 
 
 
@@ -353,6 +355,18 @@ def buy(data: GameData):
 @app.get("/home")
 def home():
     return FileResponse(BASE_DIR / "Front_end_files" / "home.html")
+
+@app.get("/shop")
+def shop():
+    return FileResponse(BASE_DIR / "Front_end_files" / "shop.html")
+
+@app.get("/catalog")
+def get_catalog():
+    return game.catalog
+
+@app.get("/choin")
+def get_choin():
+    return {"choin": tracker.choin}
 
 @app.get("/front-unchud.js")
 def front_js():

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: rgb(51, 62, 66);
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: rgb(124, 52, 213);
+            color: white;
+            padding: 10px;
+            font-size: large;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar a,
+        .navbar a:visited {
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+            color: rgb(250, 247, 229);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            font-family: Copperplate, Arial, sans-serif;
+            color: white;
+        }
+    </style>    
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">UNCHUD</div>
+        <div class="nav-links">
+            <a href="/home">Home</a>|
+            <a href="/shop">Shop</a>
+        </div>    
+    </div>
+    <div id="shop">
+        <h2 style="color:white; padding:0;">Shop - <span id="balance">0</span> choins</h2>
+        <p id="shopMessage" style="color:white; padding:0 20px;"></p>
+        <div id="items" style="padding:0 20px; color:white;"></div>
+    </div>
+    <script>
+        const itemsDiv = document.getElementById("items");
+        const balanceEl = document.getElementById("balance");
+        const messageEl = document.getElementById("shopMessage");
+
+        async function loadBalance() {
+            const res = await fetch("/choin");
+            const data = await res.json();
+            balanceEl.textContent = data.choin.toFixed(2);
+        }
+
+        async function loadCatalog() {
+            const res = await fetch("/catalog");
+            const catalog = await res.json();
+            itemsDiv.replaceChildren();
+
+            for (const [item, ranks] of Object.entries(catalog)) {
+                const row = document.createElement("div");
+                row.textContent = item + ": ";
+                for (const [rank, price] of Object.entries(ranks)) {
+                    const btn = document.createElement("button");
+                    btn.textContent = `${rank} (${price})`;
+                    btn.addEventListener("click", () => buy(item, rank));
+                    row.appendChild(btn);
+                }
+                itemsDiv.appendChild(row);
+            }
+        }
+        async function buy(item, rank) {
+            try {
+                const res = await fetch("/buy", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ item, rank })
+                });
+                if (!res.ok) throw new Error(res.status);
+                const result = await res.json();
+                messageEl.textContent = result.message;
+                await loadBalance();
+            } catch (e) {
+                messageEl.textContent = "Server error buying item.";
+            }
+        }
+        loadBalance();
+        loadCatalog();
+    </script>
+</body>
+    
+</html>
